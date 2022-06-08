@@ -1,0 +1,170 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy History</title>
+    <link rel="stylesheet" href="../static/buyhistory.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+
+
+    <link rel="stylesheet" type="text/css"  href="../static/assets/vendor/bootstrap/css/bootstrap.css">
+   
+    <script src="../static/landing.js"></script>
+    <link href="../static/landingPage.css" rel="stylesheet">
+ 
+
+    <style>
+    body 
+    {
+    background: url(https://github.com/ibrahimouachem/Royal-Burger/blob/master/CSS/bg.png?raw=true);
+    
+    }
+    </style>
+</head>
+<body>
+    <nav id="navbar" class="navbar order-last order-lg-0">
+        <ul>
+          <li><a class="nav-link scrollto" href="user-landing">Home Page</a></li>
+          <!--<li><a class="nav-link scrollto" href="#about">About</a></li>-->
+          <!-- <li><a class="nav-link scrollto" href="/menu1">Menu</a></li> -->
+          <!-- <li><a class="nav-link scrollto" href="/add-product">Add</a></li> -->
+          <li><a class="nav-link scrollto" href="#" onclick="openForm()">Donate</a></li>
+          <li><a class="nav-link scrollto" href="user-landing#menu">Restraunts</a></li>
+          <li><a href="/userprofile" class="nav-link scrollto">Profile</a></li>
+          <li><a href="/buyHistory" class="nav-link scrollto active">History</a></li>
+          <li><a href="/logout" class="nav-link scrollto">Log out</a></li>
+          <!-- <li><a href="/restLogin" class="nav-link scrollto">Vendor Login</a></li>
+          <li><a href="/restSignup" class="nav-link scrollto">Vendor Signup</a></li> -->
+          <!-- code in to make the cart number updated -->
+        </ul>
+        <!-- <i class="bi bi-list mobile-nav-toggle"></i> -->
+      </nav><!-- .navbar -->
+      <!-- <div href="#" class="book-a-table-btn srollto d-none d-lg-flex"><a href="#">Login</a>
+      <div href="#" class="book-a-table-btn srollto d-none d-lg-flex"><a href="#">Signup</a></div> -->
+      <!-- <div href="#" class=""><a href="#">Login</a></div><div href="#" class=""><a href="#">Signup</a></div> -->
+      <!-- <div class="btns"><a href="#" class="book-a-table-btn srollto d-none d-lg-flex">Login/Signup</a> -->
+      </div>
+    <!-- </div> -->
+    <div class="loginPopup">
+      <div class="formPopup" id="popupForm">
+        <form action="/form-submit" class="formContainer" method="POST">
+          <h2>Choose an organisation for the proceeds to go to!</h2>
+          <p>Most voted organisaiton will be chosen</p>
+          <input type="radio" name="org" id="" value="MINDS"> Movement for the Intellectually Disabled of Singapore (MINDS)
+          <br>
+          <input type="radio" name="org" id="" value="SPCA"> Society for the Prevention of Cruelty to Animals (SPCA)
+          <br>
+          
+          <input type="radio" name="org" id="" value="SCS"> Singapore Children's Society (SCS)
+          <br>
+          <button type="submit">Submit</button>
+          <!-- <button type="submit" class="btn">Log in</button> -->
+        </form>
+      </div>
+    </div>
+  </header><!-- End Header -->
+    <div class="wrapper rounded">
+
+        <nav class="navbar navbar-expand-lg navbar-dark dark d-lg-flex align-items-lg-start"> <a class="navbar-brand" href="#"><u>Order History</u><p class="text-muted pl-1">Purchases</p> </a> <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- <ul class="navbar-nav ml-lg-auto"> -->
+                    <!-- <li class="nav-item"> <a class="nav-link" href="#"><span class="fa fa-bell-o font-weight-bold"></span> <span class="notify">Notifications</span> </a> </li> -->
+                <!-- </ul> -->
+            </div>
+        </nav>
+        <div class="row mt-2 pt-2">
+            <div class="col-md-6" id="income">
+                <div class="d-flex justify-content-start align-items-center">
+                    <p class="fa fa-dollar" style="color: white;"></p>
+                    <p class="text mx-3">TOTAL AMOUNT SPENT</p>
+        
+                    <p class="text-white ml-4 money" id="tprice">{{totalprice}}</p>
+
+                   
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex justify-content-md-end align-items-center">
+                    <!-- <div class="fa fa-long-arrow-up"></div>
+                    <div class="text mx-3">Expense</div>
+                    <div class="text-white ml-4 money">$961.23</div> -->
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <ul class="nav nav-tabs w-75">
+                <li class="nav-item"> <a class="nav-link active" href="#history">History</a> </li>
+            </ul> 
+        </div>
+        <div class="table-responsive mt-3">
+            <table class="table table-dark table-borderless">
+                <thead>
+                    <tr>
+                        <th scope="col">Item ID</th>
+                        <th scope="col">Mode</th>
+                        <th scope="col">Restaurant</th>
+                        <th scope="col" class="text-right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    {% for i in myorder %}
+                    <tr>
+                        <input type="text" value='{{i.payment}}' id="pay1" hidden="true">
+                        <input type="text" value='{{i.items}}' id="items1" hidden="true">
+                        <input type="text" value='{{i.rname}}' id="rname" hidden="true">
+                        <script>
+                            var items = document.getElementById("items1").value
+                            var rname = document.getElementById("rname").value
+                            var ipayment = document.getElementById("pay1").value
+                            console.log(rname)
+                            console.log(items)
+                            console.log(ipayment)
+                        </script>
+                        {% if i.payment == "cred" or i.payment =="Credit card"%}
+                
+                            <td scope="row"> {{i.items}} </td>
+                            <td><span id="paym" class="fa fa-credit-card"></span></td>
+                            <td class="text-muted">{{i.rname}}</td>
+                            <td class="d-flex justify-content-end align-items-center" id="totalprice1">{{i.tprice}}</td>
+                        {% elif i.payment == "payp" or i.payment == "Paypal" %}
+                    
+                            <td scope="row"> {{i.items}} </td>
+                            <td><span id="paym" class="fa fa-paypal"></span></td>
+                            <td class="text-muted">{{i.rname}}</td> 
+                            <td class="d-flex justify-content-end align-items-center" id="totalprice1">{{i.tprice}}</td>
+                        {% elif i.payment == "netb" or i.payment == "Net banking" %}
+              
+                            <td scope="row"> {{i.items}} </td>
+                            <td><span id="paym" class="fa fa-bank"></span></td>
+                            <td class="text-muted">{{i.rname}}</td>
+                            <td class="d-flex justify-content-end align-items-center" id="totalprice1">{{i.tprice}}</td>
+                        {% endif %}
+                    </tr>
+                
+                    {% endfor %}
+              
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center results"> <span class="pl-md-3">Showing<b class="text-white"> 1-7 0f 200 </b> Transactions </span>
+            <div class="pt-3">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        <li class="page-item disabled"> <a class="page-link" href="#" aria-label="Previous"> <span aria-hidden="true">&lt;</span> </a> </li>
+                        <li class="page-item"> <a class="page-link" href="#" aria-label="Next"> <span aria-hidden="true">&gt;</span> </a> </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+    </div>
+
+
+</body>
+</html>

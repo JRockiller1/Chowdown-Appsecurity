@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dig In!</title>
+<meta name="description" content="">
+<meta name="author" content="">
+<link rel="stylesheet" type="text/css"  href="../static/style1.css">
+<link href="../static/landingPage.css" rel="stylesheet">
+
+
+</head>
+<body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+<!-- Navigation
+    ==========================================-->
+
+<nav id="menu" class="navbar navbar-default navbar-fixed-top">
+  <div class="container"> 
+    <div class="navbar-header">
+      <a class="navbar-brand page-scroll" href="#page-top">Chow Down</a> </div>
+      <nav id="navbar" class="navbar order-last order-lg-0">
+        <ul>
+          <li><a class="nav-link scrollto active" href="/resthome1"><u>Home</u></a></li>
+          <li><a class="nav-link scrollto" href="/add-product">Add item</a></li>
+          <li><a class="nav-link scrollto" href="/updateitem">Update item</a></li>
+          <li><a class="nav-link scrollto" href="/deleteitem">Remove item</a></li>
+          <li><a class="nav-link scrollto" href="/createpromo">Promo Code</a></li>
+          <li><a class="nav-link scrollto" href="/restdashboard">Dashboard</a></li>
+          <li><a class="nav-link scrollto" href="/restprofile">Profile</a></li>
+          <li><a class="nav-link scrollto" href="/logoutrest">Logout</a></li>
+      
+          
+        </ul>
+       
+      </nav>
+
+ </header>
+
+ <div id="restaurant-menu">
+  <div class="section-title text-center center">
+    <div class="overlay">
+      <br><br><br>
+      <h2>Restuarant-{{rusname}}</h2>
+     <p>Food items for sale </p>
+      
+    </div>
+    </div>
+            
+             <div class="menu-item">
+            
+                <table style=" text-align: center; ">
+                   <col width="150">
+                   <col width="150">
+                   <col width="150">
+                   <col width="150">
+                  
+                   <tr>
+                    <td> <b> Product ID </b>  </td>
+  
+                    <td> <b> Product Name  </b>  </td>
+                    <td> <b> Product Price </b>  </td>
+          
+
+                   </td>
+                  {% for i in items %}
+                   <tr>
+                      <td>{{ i.iid }}</td>
+                      <td>{{ i.iname }}</td>
+                      <td>{{ i.iprice }}</td>
+            
+                     <td> &nbsp;&nbsp;&nbsp;&nbsp; </td>
+
+    
+                   </tr>
+    
+                  {% endfor %}
+
+                </table>
+               
+
+
+                 
+                </div>
+        
+
+
+           
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
+

@@ -1,0 +1,341 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+		<link href='https://fonts.googleapis.com/css?family=Holtwood+One+SC' rel='stylesheet' type='text/css'>
+		<link href="../static/landingPage.css" rel="stylesheet">
+		<link rel="stylesheet" href="../static/testingMenu.css"/>
+		
+		
+		<title>Menu</title>
+		<style>.btn-grey{
+			background-color:#D8D8D8;
+			color:#FFF;
+		}
+		.rating-block{
+
+			border:1px solid #EFEFEF;
+			padding:30px 15px 20px 15px;
+			border-radius:10px;
+			margin: auto;
+
+		}
+		.bold{
+			font-weight:700;
+		}
+		.padding-bottom-7{
+			padding-bottom:7px;
+		}
+
+		.review-block{
+			background-color:#fafafa00;
+			border:1px solid #efefef;
+			margin: auto;
+  			width: 75%;
+ 			
+ 			padding: 10px;
+		}
+		.review-block-name{
+			font-size:12px;
+			margin:10px 0;
+		
+		}
+		.review-block-date{
+			font-size:12px;
+		}
+		.review-block-rate{
+			font-size:13px;
+			margin-bottom:15px;
+		}
+		.review-block-title{
+			font-size:15px;
+			font-weight:700;
+			margin-bottom:10px;
+		}
+		.review-block-description{
+			font-size:13px;
+		}</style>
+	</head>
+	<body>
+		<nav id="navbar" class="navbar order-last order-lg-0">
+			<ul>
+			  <li><a class="nav-link scrollto " href="/user-landing">Home Page</a></li>
+			  <li><a class="nav-link scrollto active" href="">Menu</a></li>
+			  <li><a href="/userprofile" class="nav-link scrollto">Profile</a></li>
+			  <li><a href="/logout" class="nav-link scrollto">Log out</a></li>
+			</ul>
+		  </nav>
+		<div class="container site">
+			<div>
+			<h1 class="text-logo"><span class="glyphicon glyphicon-cutlery"></span>{{restad.rname}}<span class="glyphicon glyphicon-cutlery"></span></h1>
+
+	
+			<div class="tab-content">
+				<div class="tab-pane active" id="1">
+				 	<div class="row">
+							<div id="menu">
+								
+								{% for i in restadmin %}
+									<input type="text" name="" value="{{i.iname}}" hidden="true" id="pname">
+								<div class="col-sm-6 col-md-4">
+									<div class="menu menuName0 thumbnail" id="">
+										
+										<h3>{{ i.iname }}</h3>
+										<div>
+										<img src="../static/images/product_image/{{i.iid}}.png"id="productimage" class="img-responsive">
+										</div>
+									
+										<h1></h1>
+										<h5 class="caption > p">{{i.idesc}}</h5>
+										<h4 class="price" >${{i.iprice}}</h4>
+										<input type="text" id="{{ i.iid }}a" name="a" src="" rows="1" cols="3" value="{{ i.iprice }}" readonly style="border: none;background-color: transparent; outline: none; text-align: center;" hidden="true" >
+										<input type="text" id="{{ i.iid }}b" name="b" value=0 readonly hidden="true">
+
+										<button class="btn-order" id="{{ i.iid }}" name="{{ i.iid }}" onClick="additem();">Add</button>
+										<button class="btn-order btn-danger navbar-btn" id="{{ i.iid }}" name="{{ i.iid }}" onClick="removeitem();">Remove</button>
+
+										</div>
+									</div>
+					
+								{% endfor %}
+                  
+              </div>
+					</div>
+				</div>
+			</div>
+			<div>
+				
+			<form action="/cart" method="POST">
+				  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total Price: 
+				  <input type="text" id="total" name="total" src="" rows="1" cols="" value="0" readonly style="border: none;background-color: transparent; outline: none; " />
+
+				  <input type="text" id="items" name="items" value='{{items}}' hidden="true" />
+				
+				  <input type="text" id="restid" name="restid" value="{{restad.rid}}" hidden="true"  />
+
+				 <button type="submit" class="btn btn-success" >Place Order</button>
+				
+			   </form>
+
+			   
+			  </div>
+		
+			<div class="container">
+    			
+				<div class="row">
+					<div >
+						<div class="rating-block">
+							<h4>Average user rating</h4>
+							<h2 class="bold padding-bottom-7" id="average">4.3 <small>/ 5</small></h2>
+
+						</div>
+					</div>
+					<div >
+						
+				<script>
+				var total=0
+				var count=0
+				</script>
+				{%for u in rating %}
+				<script>count=count+1</script>
+						<div class="review-block">
+						
+								<div>
+									<div class="review-block-name"><a href="#">{{u.cname}}</a></div>
+									<div class="review-block-date">{{u.date}}</div>
+	
+								</div>
+								
+									
+									<div class="review-block-rate">
+										{% if u.rstar == '1' %}
+										<script>total=total+1</script>
+										<button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+										  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										</button>
+										<button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+										  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										</button>
+										<button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+										  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										</button>
+										<button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+										  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										</button>
+										<button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+										  <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										</button>
+										{% elif u.rstar =='2' %}
+										<script>total=total+2</script>
+										  <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										{% elif u.rstar == '3' %}
+										<script>total=total+3</script>
+										<button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										{% elif u.rstar =='4' %}
+										<script>total=total+4</script>
+										<button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-default btn-grey btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  
+
+									
+										{% elif u.rstar =='5' %}
+										<script>total=total+5</script>
+										<button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  <button type="button" class="btn btn-warning btn-xs" aria-label="Left Align">
+											<span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+										  </button>
+										  
+
+										{%endif%}
+										
+									</div> 
+
+									<div class="review-block-description">{{u.rreview}}</div>
+							</div>
+							{% endfor%}
+							<script>console.log(total)
+								console.log(count)
+								var avg = total/count 
+								document.getElementById("average").innerText = avg.toFixed(2) + " / 5";</script>
+						
+							
+			</div> 
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script>
+			   var items_selected = []; 
+			   var total_price=0;
+ 
+			   function additem()
+			   {
+				 
+				 var c_item=event.srcElement.id;
+				 items_selected.push(c_item);
+				 var s1=c_item.concat("a");
+				 var s2=c_item.concat("b");
+				 var price=document.getElementById(s1).value;
+				 var c_price=parseInt(price);
+				  total_price=total_price+c_price;
+				  document.getElementById("total").value=total_price;
+ 
+				 var c_qty=parseInt(document.getElementById(s2).value);
+				 c_qty++;
+				 document.getElementById(s2).value=c_qty;
+ 
+				 console.log(items_selected);
+				  document.getElementById("items").value=items_selected;   
+ 
+ 
+			   }
+ 
+				function removeitem()
+			   {
+ 
+				 var c_item=event.srcElement.id;
+				 var s1=c_item.concat("a");
+				 var s2=c_item.concat("b");
+				 var price=document.getElementById(s1).value;
+				 var c_price=parseInt(price);
+ 
+ 
+				
+				
+				  c=0;
+				  for (var i = items_selected.length - 1; i >= 0 && c==0; i--) 
+				  {
+					 if (items_selected[i] == c_item) 
+					 {
+					   items_selected.splice(i, 1);
+						 c=1;
+					 }
+				   
+				   }
+				   console.log(items_selected);
+ 
+ 
+				
+ 
+ 
+ 
+ 
+				 var c_qty=parseInt(document.getElementById(s2).value);
+				 c_qty--;
+				 if(c_qty<0)
+				 {
+				   c_qty=0;
+				   c_price=0;
+				 } 
+				 document.getElementById(s2).value=c_qty;
+ 
+ 
+				 total_price=total_price-c_price;
+				 if(total_price<=0)
+				 {
+				   total_price=0;
+				 } 
+				 document.getElementById("total").value=total_price;
+ 
+				 document.getElementById("items").value=items_selected; 
+ 
+ 
+			   }
+ 
+ 
+
+
+		</script>
+	</body>
+</html>

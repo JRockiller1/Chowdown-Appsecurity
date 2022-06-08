@@ -1,0 +1,125 @@
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  </head>
+  <body>
+    {% block content %}
+    <link href="../static/landingPage.css" rel="stylesheet">
+  <link rel="stylesheet" href="../static/argon1.css" type="text/css">
+  
+   <nav id="navbar" class="navbar navbar-dark bg-dark" style="color: rgb(37, 35, 35);">
+    
+          <ul>
+            <li><a class="nav-link scrollto" href="/resthome1">Home</a></li>
+            <li><a href="/restprofile" class="nav-link scrollto active"><u>Profile</a></u></li>
+            <li><a href="/restdashboard" class="nav-link scrollto">Dashboard</a></li>
+            <li><a href="/index" class="nav-link scrollto">Log out</a></li>
+            
+          </ul>
+        </nav>
+        </nav>
+  <div class="header pb-6 d-flex align-items-center" 
+       style="min-height: 500px; background-image: url(/static/assets/img/theme/profile-cover.jpg); background-size: cover; background-position: center top;">
+    
+    <span class="mask bg-gradient-default opacity-8"></span>
+    <div class="container-fluid d-flex align-items-center">
+      <div class="row">
+        <div class="col-lg-7 col-md-10">
+          <h1 class="display-2 text-white"> 
+            Hello vendor of {{restname}}
+          </h1>
+          <p class="text-white mt-0 mb-5">This is your profile page. You can view your personal details as well as your current membership tier</p>
+          <a href="/editrestprofile" class="btn btn-neutral">Edit profile</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+      <div class="col-xl-8 order-xl-1">
+        <div class="card">
+          <div class="card-header">
+            <div class="row align-items-center">
+              <div class="col-8">
+                <h3 class="mb-0">View profile </h3>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <form>
+              <h6 class="heading-small text-muted mb-4">User information</h6>
+              <div class="pl-lg-4">
+                <div class="row">
+        
+                  <div class="col-lg-6">
+                    <div class="form-group">
+                      <label class="form-control-label" for="input-first-name">Full name</label>
+                      <input type="text" id="input-first-name" class="form-control"  value="{{restinfo.rname}}" readonly>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="form-group">
+                      <label class="form-control-label" for="input-email">Email address</label>
+                      <input type="email" id="input-email" class="form-control" value="{{restinfo.rmail}}" readonly>
+                    </div>
+                  </div>
+                </div>
+            
+              <hr class="my-4" />
+              <h6 class="heading-small text-muted mb-4">Contact information</h6>
+              <div class="pl-lg-4">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label class="form-control-label" for="input-address">Address</label>
+                      <input id="input-address" class="form-control" placeholder="Home Address" value="{{restinfo.raddress}}" readonly type="text">
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-4">
+                    <div class="form-group">
+                      <label class="form-control-label" for="input-city">Mobile number</label>
+                      <input type="text" id="input-city" class="form-control" value="{{restinfo.rmobile}}" readonly>
+                    </div>
+                  </div>
+             
+                </div>
+              </div>
+              <hr class="my-4" />
+            
+              <h6 class="heading-small text-muted mb-4">Account details</h6>
+              <div class="pl-lg-4">
+                <div class="form-group">
+                  <label class="form-control-label">Account ID</label>
+                  <input type="text" class="form-control" value="{{restinfo.rid}}" name="rid" readonly>
+                  
+                </div>
+              </div>
+              <div class="pl-lg-4">
+                <div class="form-group">
+                  <label class="form-control-label">Password</label>
+                  <input type="text" class="form-control" value="{{restinfo.rpassword}}" readonly>
+                  
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+  
+  {% endblock content %}
+  
+  </body>
+  </html>
+  
+  
+  
+  {% block javascripts %}{% endblock javascripts %}
+  

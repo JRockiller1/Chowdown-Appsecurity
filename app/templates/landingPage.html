@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Chow Down</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="../static/assets/img/favicon.png" rel="icon">
+  <link href="../static/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link  href="../static/TradeWinds-Regular.ttf">
+  <!-- Vendor CSS Files -->
+  <link href="../static/assets/vendor/animate.css/animate.min.css" rel="stylesheet">
+  <link href="../static/assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="../static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../static/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../static/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="../static/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="../static/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+  <!-- <link href="../static/style1.css" rel="stylesheet"> -->
+  <link href="../static/default1.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css"  href="../static/assets/vendor/bootstrap/css/bootstrap.css">
+  <!-- Template Main CSS File -->
+  <script src="../static/landing.js"></script>
+  <link href="../static/landingPage.css" rel="stylesheet">
+  <script>
+    function refresh(timeoutPeriod){
+    setTimeout("location.reload(true);", timeoutPeriod);
+    } 
+</script>
+<style>
+  body{overflow-x:hidden;}
+</style>
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="fixed-top d-flex align-items-cente">
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+
+      <h1 class="logo me-auto me-lg-0" style="font-family:Tradewinds, cursive;" id="logo"><a href="#"> Chow Down</a></h1>
+
+      <nav id="navbar" class="navbar order-last order-lg-0">
+        <ul>
+          <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
+          <li><a href="/login" class="nav-link scrollto">Login</a></li>
+          <li><a href="/sign-in" class="nav-link scrollto">Signup</a></li>
+          <li><a href="/restLogin" class="nav-link scrollto">Vendor Login</a></li>
+          <li><a href="/restSignup" class="nav-link scrollto">Vendor Signup</a></li>
+        </ul>
+      </nav>
+      </div>
+    <!-- </div> -->
+    
+  </header><!-- End Header -->
+
+  <!-- ======= Hero Section ======= -->
+  <section id="hero" class="d-flex align-items-center">
+    <div class="container position-relative text-center text-lg-start" data-aos="zoom-in" data-aos-delay="100">
+      <div class="row">
+        <div class="col-lg-8">
+          <h1>Welcome to <span>Chow Down</span></h1>
+          <br>
+          <!-- <h2> &nbsp 5% of total earnings made will go to {{chosen}} this month</h2> -->
+      </div>
+    </div>
+  </section><!-- End Hero -->
+
+  <main id="main">
+
+    <!-- ======= Why Us Section ======= -->
+    <section id="why-us" class="why-us">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <h2>Why Us</h2>
+          <p>Why choose our platform?</p>
+        </div>
+
+        <div class="row">
+
+          <div class="col-lg-4">
+            <div class="box" data-aos="zoom-in" data-aos-delay="100">
+              <span>01</span>
+              <h4>Location</h4>
+              <p>Our vendors are able to deliver food in a fast and timely manner within at least a 15km radius in Singapore.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="box" data-aos="zoom-in" data-aos-delay="200">
+              <span>02</span>
+              <h4>Quality</h4>
+              <p>We guarantee the best quality of food for our valued customers. <p><br>
+              <p>We will send one of our food critics to evaluate the food of
+                vendors that applies with us. Only once they have passed our quality check, will they be able to sign up with us.</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="box" data-aos="zoom-in" data-aos-delay="300">
+              <span>03</span>
+              <h4>Aiding Smaller vendors</h4>
+              <p>Smaller vendors are more often overlooked by consumers when it comes to picking out food as they are unknown and placed in a remote location such
+                as the void deck. <p><br>
+              <p>Due to this, we advocate and deliver for these smaller companies who may not have the branding benefit of common big-named food companies in the industry such as Mc Donalds.<p>
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section><!-- End Why Us Section -->
+
+   <!-- ======= Menu Section ======= -->
+   <section id="menu" class="menu section-bg">
+    <div class="container" data-aos="fade-up">
+
+      <div class="section-title">
+        <h2>Menu</h2>
+        <p>Check Our Restaurant</p>
+      </div>
+      <div id="portfolio">
+        <div class="section-title ">
+      
+           <table >
+  
+            <tr>
+             <td> <b> Restruants </b>  </td>
+
+             <td> <b> </b>  </td>
+
+   
+
+            </tr>
+        
+   <tr>{% for i in restadmin %}
+        <div class="row">
+
+                <div class="hover-bg"> 
+                  <div class="hover-text">
+                   <td>
+                        <h3>Restuarant-{{ i.rname }}</h3>
+                        <input type = "text" name = "restid" id="temp{{ i.rid }}" style="visibility: hidden;" />
+                      <script>
+                          var temp='{{ i.rid }}';
+                          // document.getElementbyId("temp").name=temp;
+                          document.getElementById("temp{{ i.rid }}").value=temp;
+                      </script>
+                      </td><td>
+                      <button class="btn btn-primary text-center"  onclick="plslogin()"> <h3>See Menu</h3></button>
+                     
+                     </td>
+                   
+                    </tr>
+
+
+
+            </div>
+    
+         {% endfor %}
+           </table>
+   
+     </div>
+    </div>
+  </section><!-- End Menu Section -->
+
+    <!-- ======= Specials Section ======= -->
+    <section id="specials" class="specials">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <h2>Specials</h2>
+          <p>Check Our Specials</p>
+        </div>
+
+        <div class="row" data-aos="fade-up" data-aos-delay="100">
+          <div class="col-lg-3">
+            <ul class="nav nav-tabs flex-column">
+              <li class="nav-item">
+                <a class="nav-link active show" data-bs-toggle="tab" href="#tab-1">Percy's Pizza's Extravaganza</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-2">Gabraille's Amazing Rice Combo</a>
+              </li>
+              
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-3">Percy's Hot Rods</a>
+              </li>
+              <!--
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-4">Nostrum qui quasi</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tab-5">Iusto ut expedita aut</a>
+              </li>-->
+            </ul>
+          </div>
+          <div class="col-lg-9 mt-4 mt-lg-0">
+            <div class="tab-content">
+              <div class="tab-pane active show" id="tab-1">
+                <div class="row">
+                  <div class="col-lg-8 details order-2 order-lg-1">
+                    <h3>Percy's Pizza's Extravaganza</h3>
+                    <p class="fst-italic">Margherita pizza is one of the simplest and most traditional pizzas, named after Queen Margherita, the wife of Umberto I. She was said to have appreciated its mild, fresh flavor and to have even noted that its topping colors, green, white, and red resembeles the Italian flag.</p>
+                    <p>Enjoy this delicious dish of Italian origin consists of a flattened disk of bread dough seasoned with olive oil, oregano, tomatoes, olives, mozzarella or cheese, and other ingredients, baked in an authentic wood-fired oven heated to a very high temperature—and served piping hot.</p></p>
+                  </div>
+                  <div class="col-lg-4 text-center order-1 order-lg-2">
+                    <img src="/static/images/ground-classic-italian-pizza-with-tomatoes-pepper-vegetables-sauce-mozarella-cheese-dark-kitchen-table-copy-space_90380-9471.jpg" alt="" class="img-fluid">
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane" id="tab-2">
+                <div class="row">
+                  <div class="col-lg-8 details order-2 order-lg-1">
+                    <h3>Gabraille's Amazing Rice Combo</h3>
+                    <p class="fst-italic">Roasted chicken rice is a favorite among the locals in Malaysia and Singapore. Definitely a great dish at any time of the day.</p>
+                    <p>Gabraille's Amazing Rice contains tender, steamed white chicken cut into bite-sized pieces, served with fragrant rice and light soy sauce.The dish is accompanied with a chilli sauce made of chillies, chicken broth, garlic and ginger. In addition, it is recommended to serve chicken stock steeped in a thick broth garnished with spring onions and coriander leaves.Many may not have guessed but the ‘roasted’ chicken is actually fried! Unlike the crunch you'd expect from fried chicken, this dish is fried using a two-step method that makes the skin taste like honey and makes the skin smooth.</p>
+                  </div>
+                  <div class="col-lg-4 text-center order-1 order-lg-2">
+                    <img src="/static/images/c9d3d1092afa3a8cc11939936c489c6bd1437045e160981d57b50bb9ec03beb775b4c125a10112f9d8f32b598665d1e5a2e3bbc0cef7a32d02b543_1280.jpg" alt="" class="img-fluid">
+                  </div>
+                </div>
+              </div>
+             
+              <div class="tab-pane" id="tab-3">
+                <div class="row">
+                  <div class="col-lg-8 details order-2 order-lg-1">
+                    <h3>Percy's Hod Rods</h3>
+                    <p class="fst-italic">Eos voluptatibus quo. Odio similique illum id quidem non enim fuga. Qui natus non sunt dicta dolor et. In asperiores velit quaerat perferendis aut</p>
+                    <p>Iure officiis odit rerum. Harum sequi eum illum corrupti culpa veritatis quisquam. Neque necessitatibus illo rerum eum ut. Commodi ipsam minima molestiae sed laboriosam a iste odio. Earum odit nesciunt fugiat sit ullam. Soluta et harum voluptatem optio quae</p>
+                  </div>
+                  <div class="col-lg-4 text-center order-1 order-lg-2">
+                    <img src="/static/images/1e19727ed2da28c5e01466d71290e5e06c3d4ae812e2098007c907f41e969a768b9398ca10c92edcb46b5d6b44f2bddfac36e0e38f04f8322027f2_1280.jpg" alt="" class="img-fluid">
+                  </div>
+                </div>
+              </div>
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+
+      </div>
+    </section><!-- End Events Section -->
+
+   
+
+    <!-- ======= Testimonials Section ======= -->
+    <section id="testimonials" class="testimonials section-bg">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <h2>Testimonials</h2>
+          <p>What they're saying about us</p>
+        </div>
+
+        <div class="testimonials-slider swiper" data-aos="fade-up" data-aos-delay="100">
+          <div class="swiper-wrapper">
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <p>
+                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
+                  I use this application quite a lot to order in large quantities for notable events such as Christmas and New Years Eve. It is much cheaper than ordering catering services. 
+                  The food from these shops are just wonderful, most of them surpassing our expectations as these shos are not as well known as more popular brands.
+                  My staff and I are also introduced to multiple small locally owned restaurants/side-shops that we have never heard of before. Definitely recommend using this app!
+                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
+                </p>
+                <img src="static/assets/img/testimonials/testimonials-1.jpg" class="testimonial-img" alt="">
+                <h3>Saul Goodman</h3>
+                <h4>Ceo &amp; Founder</h4>
+              </div>
+            </div><!-- End testimonial item -->
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <p>
+                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
+                  I've just got one word for this app. Wow. As a small shop owner myself, I love the advocation for small businesses amidst of Covid-19. 10/10. Keep up the good work!
+                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
+                </p>
+                <img src="static/assets/img/testimonials/testimonials-2.jpg" class="testimonial-img" alt="">
+                <h3>Sara Wilsson</h3>
+                <h4>Store Owner</h4>
+              </div>
+            </div><!-- End testimonial item -->
+
+            <div class="swiper-slide">
+              <div class="testimonial-item">
+                <p>
+                  <i class="bx bxs-quote-alt-left quote-icon-left"></i>
+                  It is one of the best consistant delivery I have ever been to! The customer service personnel of ChowDown were very friendly when I asked certain questions and the presentation of the food on delivery was just as if I ate at the restaurant itself! No spillage whatsoever. 
+                  I recommend it to everyone! I would definitely frequent this app!  
+                  <i class="bx bxs-quote-alt-right quote-icon-right"></i>
+                </p>
+                <img src="static/assets/img/testimonials/testimonials-3.jpg" class="testimonial-img" alt="">
+                <h3>Jena Karlis</h3>
+                <h4>Designer</h4>
+              </div>
+            </div><!-- End testimonial item -->
+
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+
+      </div>
+    </section><!-- End Testimonials Section -->
+
+
+    <!-- ======= Contact Section ======= -->
+    <section id="contact" class="contact">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-title">
+          <h2>Contact</h2>
+          <p>Contact Us</p>
+        </div>
+      </div>
+
+      <div data-aos="fade-up">
+        <iframe style="border:0; width: 100%; height: 350px;" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15955.203932592007!2d103.8527521!3d1.2939061!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x9e2c22290141f62f!2sAdams%20Street%20Partners%20Singapore%20Pte.%20Ltd.!5e0!3m2!1sen!2ssg!4v1644605821095!5m2!1sen!2ssg" frameborder="0" allowfullscreen></iframe>
+      </div>
+
+      <div class="container" data-aos="fade-up">
+
+        <div class="row mt-5">
+
+          <div class="col-lg-4">
+            <div class="info">
+              <div class="address">
+                <i class="bi bi-geo-alt"></i>
+                <h4>Location:</h4>
+                <p>250 North Bridge Rd, Singapore 179101</p>
+              </div>
+
+              <div class="open-hours">
+                <i class="bi bi-clock"></i>
+                <h4>Open Hours:</h4>
+                <p>
+                  Monday-Saturday:<br>
+                  11:00 AM - 23:00 PM
+                </p>
+              </div>
+
+              <div class="email">
+                <i class="bi bi-envelope"></i>
+                <h4>Email:</h4>
+                <p>ChowDown@example.com</p>
+              </div>
+
+              <div class="phone">
+                <i class="bi bi-phone"></i>
+                <h4>Call:</h4>
+                <p>+65 6303 8730</p>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="col-lg-8 mt-5 mt-lg-0">
+
+            <form action="/feedback" method="post" class="php-email-form">
+              <div class="row">
+                <div class="col-md-6 form-group">
+                  <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" required>
+                </div>
+                <div class="col-md-6 form-group mt-3 mt-md-0">
+                  <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required>
+                </div>
+              </div>
+              <div class="form-group mt-3">
+                <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" required>
+              </div>
+              <div class="form-group mt-3">
+                <textarea class="form-control" name="message" rows="8" placeholder="Message" required></textarea>
+              </div>
+              <div class="my-3">
+                <div class="loading">Loading</div>
+                <div class="error-message"></div>
+                <div class="sent-message">Your message has been sent. Thank you!</div>
+              </div>
+              <div class="text-center"><button type="submit" onclick="refresh(2000)">Send Message</button></div>
+            </form>
+
+          </div>
+
+        </div>
+
+      </div>
+      
+    </section><!-- End Contact Section -->
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+    <div class="footer-top">
+      <div class="container">
+        <div class="row">
+
+          <div class="col-lg-3 col-md-6">
+            <div class="footer-info">
+              <h3>Restaurantly</h3>
+              <p>
+                250 North Bridge Rd<br>
+                Singapore 179101<br><br>
+                <strong>Phone:</strong> +65 6303 8730<br>
+                <strong>Email:</strong> ChowDown@example.com<br>
+              </p>
+              <div class="social-links mt-3">
+                <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
+                <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
+                <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a>
+                <a href="#" class="google-plus"><i class="bx bxl-skype"></i></a>
+                <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-md-6 footer-links">
+            <h4>Useful Links</h4>
+            <ul>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Home</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">About us</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Services</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Terms of service</a></li>
+              <li><i class="bx bx-chevron-right"></i> <a href="#">Privacy policy</a></li>
+            </ul>
+          </div>
+
+         
+          <div class="col-lg-4 col-md-6 footer-newsletter">
+            <h4>Our Newsletter</h4>
+            <p>Sign up for blogs and discount codes!</p>
+            <form action="/newsletter" method="POST">
+              <input type="email" name="nmail"><button type="submit" onclick="refresh(2000)">Subscribe</button>
+            </form>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Chow Down</span></strong>. All Rights Reserved
+      </div>
+
+    </div>
+  </footer><!-- End Footer -->
+
+  <div id="preloader"></div>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="static/assets/vendor/aos/aos.js"></script>
+  <script src="static/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="static/assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="static/assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="static/assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="static/assets/vendor/php-email-form/validate.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="static/assets/js/main.js"></script>
+
+</body>
+  <script>
+    function plslogin(){
+      alert("Please login/signup first!")
+    }
+  </script>
+</html>

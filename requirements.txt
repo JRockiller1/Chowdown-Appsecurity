@@ -1,0 +1,8 @@
+Flask-Mail == 0.9.1
+Flask == 2.0.1
+Flask-Login == 0.5.0
+Flask-SQLAlchemy == 2.5.1
+Flask-WTF == 0.15.1
+SQLAlchemy == 1.4.25
+WTForms == 2.3.3
+Jinja2  == 3.0.1

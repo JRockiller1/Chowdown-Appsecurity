@@ -1,0 +1,133 @@
+
+<html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Edit Profile</title>
+    </head>
+    <body>
+      {% block content %}
+      <link href="../static/landingPage.css" rel="stylesheet">
+    <link rel="stylesheet" href="../static/argon1.css" type="text/css">
+    
+     <nav id="navbar" class="navbar navbar-dark bg-dark" style="color: black;">
+            <ul>
+          <li><a class="nav-link scrollto" href="/user-landing">Home</a></li>
+          <!--<li><a class="nav-link scrollto" href="#about">About</a></li>-->
+          <!-- <li><a class="nav-link scrollto" href="/menu1">Menu</a></li> -->
+          <!-- <li><a class="nav-link scrollto" href="/add-product">Add</a></li> -->
+          <li><a class="nav-link scrollto" href="user-landing#menu">Restraunts</a></li>
+          <li><a href="/userprofile" class="nav-link scrollto active"><u>Profile</a></u></li>
+          <li><a href="/buyHistory" class="nav-link scrollto">History</a></li>
+          <li><a href="/logout" class="nav-link scrollto">Log out</a></li>
+              <!-- <li><a href="/restLogin" class="nav-link scrollto">Vendor Login</a></li>
+              <li><a href="/restSignup" class="nav-link scrollto">Vendor Signup</a></li> -->
+              <!-- code in to make the cart number updated -->
+            </ul>
+            <!-- <i class="bi bi-list mobile-nav-toggle"></i> -->
+          </nav><!-- .navbar -->
+    <div class="header pb-6 d-flex align-items-center" 
+         style="min-height: 500px; background-image: url(/static/assets/img/theme/profile-cover.jpg); background-size: cover; background-position: center top;">
+      <!-- Mask -->
+      <span class="mask bg-gradient-default opacity-8"></span>
+      <!-- Header container -->
+      <div class="container-fluid d-flex align-items-center">
+        <div class="row">
+          <div class="col-lg-7 col-md-10">
+            <h1 class="display-2 text-white"> 
+              Hello {{cusname}}
+            </h1>
+            <p class="text-white mt-0 mb-5">This is your profile page. You can view your personal details as well as your current membership tier</p>
+            <a href="/userprofile" class="btn btn-neutral">View profile</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+        <div class="col-xl-8 order-xl-1">
+          <div class="card">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-8">
+                  <h3 class="mb-0">EDIT PROFILE</h3>
+                </div>
+                <!-- <div class="col-4 text-right">
+                  <a href="#!" class="btn btn-sm btn-primary">Settings</a>
+                </div> -->
+              </div>
+            </div>
+            <div class="card-body">
+                <form action="/edituserprofileNext" method="POST">
+                <h6 class="heading-small text-muted mb-4">User information</h6>
+                <div class="pl-lg-4">
+                  <div class="row">
+                    
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-first-name" >Full name</label>
+                        <input type="text" id="input-first-name" class="form-control"name="name" value="{{cusinfo.cname}}">
+                      </div>
+                    </div>
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-email" >Email address</label>
+                        <input type="email" id="input-email" class="form-control" name="email" value="{{cusinfo.cmail}}">
+                      </div>
+                    </div>
+                  </div>
+              
+                <hr class="my-4" />
+                <!-- Address -->
+                <h6 class="heading-small text-muted mb-4">Contact information</h6>
+                <div class="pl-lg-4">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-address" >Address</label>
+                        <input id="input-address" class="form-control" placeholder="Home Address"name="address" value="{{cusinfo.caddress}}" type="text">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-4">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-city">Mobile number</label>
+                        <input type="text" id="input-city" class="form-control" name="mobile" value="{{cusinfo.cmobile}}">
+                      </div>
+                    </div>
+                   
+                  </div>
+                </div>
+                <hr class="my-4" />
+                <!-- Description -->
+                <h6 class="heading-small text-muted mb-4">Account details</h6>
+                <div class="pl-lg-4">
+                  <div class="form-group">
+                    <label class="form-control-label">Account ID</label>
+                    <input type="text" class="form-control" value="{{cusinfo.cid}}" name="cid" readonly>
+                  </div>
+                </div>
+                <div class="pl-lg-4">
+                  <div class="form-group">
+                    <label class="form-control-label">Password</label>
+                    <input type="text" class="form-control" name="cpassword" value="{{cusinfo.cpassword}}">
+                  </div>
+                </div>
+                <button type="submit">Save Changes</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    <!--  -->
+    
+    </div>
+    
+    {% endblock content %}
+    
+    </body>
+    </html>
+    
+  
+    
