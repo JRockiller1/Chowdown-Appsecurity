@@ -6,7 +6,7 @@
 </div>
 <div class="cont">
 <div class="stars">
-
+  {% autoescape false %}
 <form action="/givereviewnext" method="POST">
   <input class="star star-5" id="star-5-2" type="radio" name="rating" value="5"/>
   <label class="star star-5" for="star-5-2"></label>
@@ -29,4 +29,6 @@
             <h3>You are currently leaving a review on <b> {{rname}} </b></h3>
   <div class="post-button"> <button type="submit">SUBMIT REVIEW</button> </div>
 </form>
+<div>{{review}}</div>
 </div>
+{% endautoescape %}

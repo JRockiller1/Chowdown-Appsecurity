@@ -8,11 +8,6 @@
     </a>
     <script src="https://code.iconify.design/1/1.0.7/iconify.min.js"></script>
 	<link rel="stylesheet" href="https://unicons.iconscout.com/release/v3.0.6/css/solid.css">
-	<script>
-		function signupAlert(){
-			alert("Account created succesfully. Please log in now!")
-		}
-	</script>
 </head>
 <body>
 	<div class="section">
@@ -21,24 +16,27 @@
 				<div class="col-12 text-center align-self-center py-5">
 					<div class="section pb-5 pt-5 pt-sm-2 text-center">
 						
-						<h4 class="mb-0 pb-3"><a href="/login">Log In</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/sign-in">Sign Up</a></h4>
+						<h4 class="mb-0 pb-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h4>
 						<div class="card-3d-wrap mx-auto">
 							<!-- <div class="card-3d-wrapper"> -->
 								<div class="card-front">
 									<div class="center-wrap">
 										<div class="section text-center">
 				
-											<h4 class="mb-4 pb-3">Log In</h4>
-											<form action="/login-success" method="POST">
-											<div class="form-group">
-												<input type="email" name="cmail" class="form-style" placeholder="Your Email" id="logemail" autocomplete="off">
-												<i class="input-icon uil uil-at"><span class="iconify" data-icon="ic:baseline-alternate-email" style="color: #ffeba7;"></span></i>
-											</div>
+											<h4 class="mb-4 pb-3">Verify Password</h4>
+											<form action="/changepassnext" method="POST">
+											<!-- <div class="form-group"> -->
+												<input type="email" name="mail1" class="form-style" value="{{info.cmail}}" id="logemail" autocomplete="off" hidden='true'>
+												<!-- <i class="input-icon uil uil-at"><span class="iconify" data-icon="ic:baseline-alternate-email" style="color: #ffeba7;"></span></i> -->
+											<!-- </div> -->
 											<div class="form-group mt-2">
-												<input type="password" name="cpassword" class="form-style" placeholder="Your Password" id="logpass" autocomplete="off">
+												<input type="password" name="password1" class="form-style" placeholder="Your Password" id="logpass" autocomplete="off" required>
 												<i class="input-icon uil uil-lock-alt"><span class="iconify" data-icon="dashicons:lock-duplicate" style="color: #ffeba7;"></span></i>
 											</div>
-											<button href="#" formmethod="POST" class="btn mt-4">submit</button>
+                                            {%if cmsg%}
+                                            <p style="color: red;">{{cmsg}}</p>
+                                            {%endif%}
+											<button href="" class="btn mt-4">Verify</button>
 											<h4 class="mb-0 pb-3"><a href="/forgorpassword">Forgot your password?</a></h4>
 				      					</div>
 			      					</div>

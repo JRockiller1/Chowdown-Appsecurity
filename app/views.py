@@ -11,9 +11,9 @@ import datetime
 import random
 from flask_mail import Mail,Message
 import os
-import hashlib
 from hashlib import sha256
-from werkzeug.security import generate_password_hash, check_password_hash
+import bcrypt
+import jinja2
 # password for chowdownfeedback054@gmail.com: chowdownadmin123
 # maill pass zswcovyhpabvtnrs
 # put in os environ variable
@@ -80,7 +80,14 @@ def indexmenu():
 
 
 
+@app.route('/testingxss', methods=['GET','POST'])
+def testing():
+    return render_template("testingxss.html")
 
+@app.route('/testingxss2',methods=['POST','GET'])
+def testing2():
+    comment = request.form['comment']
+    return render_template('testingxss.html',comment=comment)
 
 
 # RESTRAUNT/VENDOR
@@ -100,15 +107,17 @@ def restregisterbyadmin():
         rpassword = request.form['rpassword']
         rname = request.form['rname']
         raddress = request.form['raddress']
-        r = Vendor(rname,raddress,rmail,rpassword,rmobile)
+        # r = Vendor(rname,raddress,rmail,rpassword,rmobile)
         restadmin = Restadmin.query.filter(and_(Restadmin.rmail == rmail, Restadmin.rmobile == rmobile)).first()
+        salt = bcrypt.gensalt(rounds=14)
+        pwhash = bcrypt.hashpw(rpassword.encode(),salt)
 
         if restadmin:
             # return redirect(url_for('adminHome1'))		
             return render_template('signup-vendor.html', admsg="Restaurant Already Registered...!")
         # add in alert to say restraunt is registered already
         else:
-            newrest = Restadmin(rname=r.get_name(), rmail=r.get_email(), rmobile=r.get_mobile(), raddress=r.get_address(), rpassword=r.get_password())
+            newrest = Restadmin(rname=rname, rmail=rmail, rmobile=rmobile, raddress=raddress, rpassword=pwhash)
         
             db.session.add(newrest)
             db.session.commit()
@@ -133,10 +142,14 @@ def restloginNext():
         rpassword = request.form['rpassword']
 
        
-        restadmin  = Restadmin.query.filter(and_(Restadmin.rmail == rmail, Restadmin.rpassword == rpassword)).first()
+        restadmin  = Restadmin.query.filter(Restadmin.rmail == rmail).first()
+        pw_storedhash = restadmin.rpassword
 
 
-        if restadmin :
+        # if restadmin and rpassword.isnumeric():
+        #     session['rmail'] = request.form['rmail']
+        #     return redirect(url_for('resthome1'))
+        if restadmin and bcrypt.checkpw(rpassword.encode(),pw_storedhash) :
             session['rmail'] = request.form['rmail']
             return redirect(url_for('resthome1'))
             # return render_template('resthome.html',rusname=restadmin.rname,restadmin = Restadmin.query.all())
@@ -163,6 +176,56 @@ def editrestProfile():
     restadmin=Restadmin.query.filter(Restadmin.rmail==rmail).first()
 
     return render_template('editvendorprofile.html',restname=restadmin.rname, restinfo = restadmin)
+
+@app.route('/changepassrest')
+def changepassrest():
+    if not session.get('rmail'):
+        return redirect(request.url_root)
+    rmail = session['rmail']
+    restadmin=Restadmin.query.filter(Restadmin.rmail==rmail).first()
+
+    return render_template('changepassrest.html', info=restadmin)
+
+@app.route('/changepassrestnext', methods=['POST','GET'])
+def changepassrestnext():
+    if request.method == 'POST':
+
+        rmail = request.form['mail1']
+        rpassword = request.form['password1']
+    elif request.method == "GET":
+        rmail = request.args.get("mail1")
+        rpassword = request.args.get("password1")
+
+
+    restadmin=Restadmin.query.filter(Restadmin.rmail==rmail).first()
+    pw_storedhash = restadmin.rpassword
+    if restadmin and bcrypt.checkpw(rpassword.encode(),pw_storedhash):
+            return render_template('changepassrestnext.html')
+    else:
+        restadmin=Restadmin.query.filter(Restadmin.rmail==rmail).first()
+        return render_template('changepassrest.html', info=restadmin,cmsg="Invalid password entered")
+@app.route('/updatepasswordrest',methods=['POST','GET'])
+def updatepasswordrest():
+    if request.method == 'POST':
+        rpassword = request.form['rpassword']
+        rpassword2 = request.form['rpassword2']
+    elif request.method == "GET":
+
+        rpassword = request.args.get("rpassword")
+        rpassword2 = request.args.get("rpassword2")
+    
+    if rpassword == rpassword2:
+        rmail=session['rmail']
+        restadmin=Restadmin.query.filter(Restadmin.rmail==rmail).first()
+        salt = bcrypt.gensalt(rounds=14)
+        pwhash = bcrypt.hashpw(rpassword.encode(),salt)
+        restadmin.rpassword=pwhash
+        db.session.commit()
+        return render_template('changepassrestnext.html',cmsg1="Sucessfully updated password")
+    else:
+        return render_template('changepassrestnext.html',cmsg2="Passwords do not match")
+
+
 @app.route('/editrestprofileNext', methods = ['GET','POST'])
 def editrestprofileNext():
     if not session.get('rmail'):
@@ -684,28 +747,28 @@ def discountedcart():
 
 
 
-@app.route('/updaterestpass',methods = ['GET','POST'])
-def updaterestprofile():
-    if not session.get('rmail'):
-        return redirect(request.url_root)
-    return render_template('updaterestpass.html')
+# @app.route('/updaterestpass',methods = ['GET','POST'])
+# def updaterestprofile():
+#     if not session.get('rmail'):
+#         return redirect(request.url_root)
+#     return render_template('updaterestpass.html')
 
 
-@app.route('/updaterestpassNext', methods = ['GET','POST'])
-def updaterestprofileNext():
-    if not session.get('rmail'):
-        return redirect(request.url_root)
+# @app.route('/updaterestpassNext', methods = ['GET','POST'])
+# def updaterestprofileNext():
+#     if not session.get('rmail'):
+#         return redirect(request.url_root)
     
-    rmail=session['rmail']
-    r = Vendor(None,None,None,None,None)
-    r.set_pass( request.form['rpassword'])
-    # rpassword = request.form['rpassword']
+#     rmail=session['rmail']
+#     r = Vendor(None,None,None,None,None)
+#     r.set_pass( request.form['rpassword'])
+#     # rpassword = request.form['rpassword']
     
-    restadmin=Restadmin.query.filter(Restadmin.rmail==rmail).first()
-    # restadmin.rpassword=rpassword
-    restadmin.rpassword = r.get_password()
-    db.session.commit()
-    return render_template('updaterestpass.html', rmsg="Passsword Updated Succcessfully...!")
+#     restadmin=Restadmin.query.filter(Restadmin.rmail==rmail).first()
+#     # restadmin.rpassword=rpassword
+#     restadmin.rpassword = r.get_password()
+#     db.session.commit()
+#     return render_template('updaterestpass.html', rmsg="Passsword Updated Succcessfully...!")
 
 @app.route('/restprofile', methods = ['GET','POST'])
 def showrestprofile():
@@ -740,8 +803,14 @@ def forgorpasswordNextrest():
     remail = request.form["rmail"]
 
     restadmin=Restadmin.query.filter(Restadmin.rmail==remail).first()
-    restadmin.rpassword = random.randint(100,999)
-    
+    new_pass = random.randint(100,999)
+    rmail = restadmin.rmail
+        # send pin to email
+    new_pass = random.randint(100,999)
+    restadmin.rpassword = new_pass
+    msg = Message("Hello from Chow Down! Here is your pin to access your account.", sender="chowdownadmin054@gmail.com", recipients=[cmail])
+    msg.body = "Your NEW PASSWORD: " + str(new_pass)
+    mail.send(msg)
     db.session.commit()
     flash("Successfully updated password")
     return render_template('forgorpasswordNextrest.html', cmsg="Passsword Updated Succcessfully...!", restinfo = restadmin)
@@ -761,7 +830,7 @@ def success():
         cname = request.args.get("cname")
         caddress = request.args.get("caddress")
         cmobile= request.args.get("cmobile")
-        c = User(cname,caddress,cmail,cpassword,cmobile)
+    
 
     elif request.method == "POST":
         cmail = request.form["cmail"]
@@ -769,22 +838,26 @@ def success():
         cname = request.form["cname"]
         cmobile= request.form["cmobile"]
         caddress = request.form["caddress"]
-        c = User(cname,caddress,cmail,cpassword,cmobile)
-        customercheck = Customer.query.filter(and_(Customer.cmail == cmail, Customer.cpassword == cpassword)).first()
+    
+        customercheck = Customer.query.filter(Customer.cmail == cmail).first()
         
         # return(str(customer))
         if customercheck:
             return render_template('signup.html',cmsg="Registration Falied, \n User Already Registered..!")
         else:
             # password hash (BAD)
-            pwhash = sha256(cpassword.encode('utf8'))
-            customer = Customer(cname=cname,cmail=cmail,cmobile=cmobile, caddress=caddress, cpassword=pwhash.hexdigest())
+            # pwhash = sha256(cpassword.encode('utf8'))
+            # customer = Customer(cname=cname,cmail=cmail,cmobile=cmobile, caddress=caddress, cpassword=pwhash.hexdigest())
+            # ==========================================================================================
             # password hash with salting and pbdfk2 (good) OR BCRYPT
+            # pbkdf2 better for encryption (key derivation. Their purpose is to generate an encryption key given a password. )
+            # BCYRPT for password storage, much longer/harder to bruteforce (slow hashing).
 
-            # pwhash = generate_password_hash(pw,method='pbkdf2:sha512',salt_length=64)
-            # pwcheck = check_password_hash(pwhash,pw)
+            salt = bcrypt.gensalt(rounds=14)
+            pwhash = bcrypt.hashpw(cpassword.encode(),salt)
             
-            # customer = Customer(cname=cname,cmail=cmail,cmobile=cmobile, caddress=caddress, cpassword=pwhash)
+            
+            customer = Customer(cname=cname,cmail=cmail,cmobile=cmobile, caddress=caddress, cpassword=pwhash)
             db.session.add(customer)
             db.session.commit()
             return render_template('login.html')
@@ -853,13 +926,14 @@ def newsletterlogged():
     return render_template("loggedinlanding.html")
 
 
-@app.route('/login')
+@app.route('/login', methods=["POST","GET"])
 def login():
     return render_template('login.html')
 
 @app.route('/login-success', methods=['GET','POST'])
 def loginsuccess():
-    
+    # if not session.get('cmail'):
+    #     return redirect(request.url_root)
     if request.method == "GET":
         cmail = request.args.get("cmail")
         cpassword = request.args.get("cpassword")
@@ -867,19 +941,20 @@ def loginsuccess():
     elif request.method == "POST":
         cmail = request.form['cmail']
         cpassword = request.form['cpassword']
-
-        # bad
+  
         customer  = Customer.query.filter(Customer.cmail == cmail).first()
         pw_storedhash = customer.cpassword
-        pwhash = sha256(cpassword.encode('utf8')).hexdigest()
+    
+        # if customer and cpassword.isnumeric():
+        #     session['cmail'] = request.form['cmail']
+        #     return redirect(url_for('userLanding'))
 
-        if customer and pwhash==pw_storedhash:
+        if customer and bcrypt.checkpw(cpassword.encode(),pw_storedhash):
             session['cmail'] = request.form['cmail']
             return redirect(url_for('userLanding'))
-            # return render_template('userhome.html',cusname=customer.cname,restadmin = Restadmin.query.all())
-            # return render_template('userhome.html',restadmin = Restadmin.query.all())
+        # return render_template('loggedinLanding.html',cusname=customer.cname,restadmin = Restadmin.query.all(),chosen=chosen)
             
-        return render_template('login.html',cusname="Login failed...\n Please enter valid username and password!")
+    return render_template('login.html',cusname="Login failed...\n Please enter valid username and password!")
 
 
 @app.route("/user-landing", methods=["POST","GET"])
@@ -978,6 +1053,7 @@ def userProfile():
 
     return render_template('profile2.html',cusname=customer.cname,cusinfo = customer, tprice=tprice)
 
+
 @app.route('/edituserprofile')
 def edituserProfile():
     if not session.get('cmail'):
@@ -985,6 +1061,57 @@ def edituserProfile():
     cmail=session['cmail']
     customer=Customer.query.filter(Customer.cmail==cmail).first()
     return render_template('editprofile.html',cusname=customer.cname,cusinfo = customer)
+
+@app.route('/changepass',methods=['POST','GET'])
+def changepass():
+    if not session.get('cmail'):
+        return redirect(request.url_root)
+    cmail = session['cmail']
+    customer=Customer.query.filter(Customer.cmail==cmail).first()
+
+    return render_template('changepass.html', info=customer)
+
+@app.route('/changepassnext', methods=['POST','GET'])
+def changepassnext():
+    if request.method == 'POST':
+
+        cmail = request.form['mail1']
+        cpassword = request.form['password1']
+    elif request.method == "GET":
+        cmail = request.args.get("mail1")
+        cpassword = request.args.get("password1")
+
+
+    customer  = Customer.query.filter(Customer.cmail == cmail).first()
+    pw_storedhash = customer.cpassword
+    if customer and bcrypt.checkpw(cpassword.encode(),pw_storedhash):
+            return render_template('changepassnext.html')
+    else:
+        customer=Customer.query.filter(Customer.cmail==cmail).first()
+        return render_template('changepass.html', info=customer,cmsg="Invalid password entered")
+
+@app.route('/updatepassword',methods=['POST','GET'])
+def updatepassword():
+    if request.method == 'POST':
+
+
+        cpassword = request.form['cpassword']
+        cpassword2 = request.form['cpassword2']
+    elif request.method == "GET":
+
+        cpassword = request.args.get("cpassword")
+        cpassword2 = request.args.get("cpassword2")
+    
+    if cpassword == cpassword2:
+        cmail=session['cmail']
+        customer = Customer.query.filter(Customer.cmail==cmail).first()
+        salt = bcrypt.gensalt(rounds=14)
+        pwhash = bcrypt.hashpw(cpassword.encode(),salt)
+        customer.cpassword=pwhash
+        db.session.commit()
+        return render_template('changepassnext.html',cmsg1="Sucessfully updated password")
+    else:
+        return render_template('changepassnext.html',cmsg2="Passwords do not match")
 
 @app.route('/forgorpassword',methods=["POST","GET"])
 def forgorpassword():
@@ -1030,14 +1157,13 @@ def edituserprofileNext():
     email_address = request.form["email"]
     address = request.form["address"]
     mobile = request.form["mobile"]
-    cpassword = request.form['cpassword']
     cid = request.form['cid']
     customer=Customer.query.filter(Customer.cid==cid).first()
     customer.cmail = email_address
     customer.cname = user_name
     customer.cmobile = mobile
     customer.caddress = address
-    customer.cpassword = cpassword
+
     db.session.commit()
     flash("Successfully updated profile")
     return render_template('profile2.html', cmsg="Passsword Updated Succcessfully...!", cusinfo = customer)
@@ -1173,8 +1299,8 @@ def givereviewnext():
     db.session.add(rating)
     db.session.commit()
     print("success")
-    # return render_template("givereviewnext.html")
-    return redirect(url_for('userLanding'))
+    return render_template("givereview.html",review=review)
+    # return redirect(url_for('givereviewnext'))
 
 @app.route("/buyHistory")
 def buyHistory():
