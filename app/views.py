@@ -2,8 +2,8 @@
 from flask_mail import Mail
 from flask import Flask, flash, render_template, render_template_string, url_for, request, session
 from werkzeug.utils import redirect
-from app.baseAccount import User
-from app.vendorAccount import Vendor
+# from app.baseAccount import User
+# from app.vendorAccount import Vendor
 from sqlalchemy import and_
 from app import app, db
 from app.models import Customer, Restadmin, Items, Orders, Rating, Data,Promotion,charity_vote
@@ -11,12 +11,14 @@ import datetime
 import random
 from flask_mail import Mail,Message
 import os
-from hashlib import sha256
 import bcrypt
-import jinja2
+
+
+
 # password for chowdownfeedback054@gmail.com: chowdownadmin123
 # maill pass zswcovyhpabvtnrs
 # put in os environ variable
+
 app.config.update(dict(
     MAIL_SERVER = 'smtp.gmail.com',
     MAIL_PORT = 587,
@@ -793,28 +795,45 @@ def forgorpasswordrest():
 
 
         
+    new_pass = random.randint(100,999)
 
-    customer=Restadmin.query.filter(Restadmin.rmail==rmail).first()
-    return render_template('forgorpasswordrest.html')
+    return render_template('forgorpasswordrest.html',temppass=new_pass)
 
 @app.route('/forgorNextrest', methods = ['GET','POST'])
 def forgorpasswordNextrest():
+    if request.method == "GET":
+        temppass = request.args.get("temp")
+        remail = request.args.get('rmail')
     
-    remail = request.form["rmail"]
+    elif request.method == "POST":
+        temppass = request.form['temp']
+   
+        remail = request.form["rmail"]
 
     restadmin=Restadmin.query.filter(Restadmin.rmail==remail).first()
-    new_pass = random.randint(100,999)
     rmail = restadmin.rmail
         # send pin to email
-    new_pass = random.randint(100,999)
-    restadmin.rpassword = new_pass
-    msg = Message("Hello from Chow Down! Here is your pin to access your account.", sender="chowdownadmin054@gmail.com", recipients=[cmail])
-    msg.body = "Your NEW PASSWORD: " + str(new_pass)
+    msg = Message("Hello from Chow Down! Here is your pin to access your account.", sender="chowdownadmin054@gmail.com", recipients=[rmail])
+    msg.body = "Your Pin: " + str(temppass)
     mail.send(msg)
     db.session.commit()
-    flash("Successfully updated password")
-    return render_template('forgorpasswordNextrest.html', cmsg="Passsword Updated Succcessfully...!", restinfo = restadmin)
+    session['rmail'] = rmail
+    return render_template('forgorpasswordNextrest.html',temppass=temppass,restinfo = restadmin)
 
+@app.route('/verifyrest', methods=['POST','GET'])
+def verifyrest():
+    if request.method == "GET":
+        temppass = request.args.get("temp")
+        pin = request.args.get("pin")
+    
+    elif request.method == "POST":
+        temppass = request.form['temp']
+        pin = request.form['pin']
+
+    if temppass == pin:
+        return render_template("changepassrestnext.html")
+    else:
+        return render_template("forgorpasswordNextrest.html",cmsg="Pin is incorrect. Please try again")
 # =====================================================================================================================
 # CUSTOMERS
 # =====================================================================================================================
@@ -1124,13 +1143,20 @@ def forgorpassword():
 
 
         
-
+    new_pass = random.randint(100,999)
     customer=Customer.query.filter(Customer.cmail==cmail).first()
-    return render_template('forgorpassword.html')
+    return render_template('forgorpassword.html',temppass=new_pass)
+
+
 
 @app.route('/forgorNext', methods = ['GET','POST'])
 def forgorpasswordNext():
+    if request.method == "GET":
+        temppass = request.args.get("temp")
+
     
+    elif request.method == "POST":
+        temppass = request.form['temp']
    
  
     cemail = request.form["cmail"]
@@ -1138,16 +1164,30 @@ def forgorpasswordNext():
     customer=Customer.query.filter(Customer.cmail==cemail).first()
     cmail = customer.cmail
     # send pin to email
-    new_pass = random.randint(100,999)
-    customer.cpassword = new_pass
-    msg = Message("Hello from Chow Down! Here is your pin to access your account.", sender="chowdownadmin054@gmail.com", recipients=[cmail])
-    msg.body = "Your NEW PASSWORD: " + str(new_pass)
+   
+    # customer.cpassword = temppass
+    msg = Message("Hello from Chow Down! Here is your pin to reset your password.", sender="chowdownadmin054@gmail.com", recipients=[cmail])
+    msg.body = "Your PIN: " + str(temppass)
     mail.send(msg)
     db.session.commit()
-    flash("Successfully updated password")
-    return render_template('forgorpasswordNext.html', cmsg="Passsword Updated Succcessfully...!", cusinfo = customer)
+    session['cmail'] = cmail
+    return render_template('forgorpasswordNext.html', cusinfo = customer,temppass=temppass)
 
+@app.route('/verify', methods=['POST','GET'])
+def verifiy():
+    if request.method == "GET":
+        temppass = request.args.get("temp")
+        pin = request.args.get("pin")
+    
+    elif request.method == "POST":
+        temppass = request.form['temp']
+        pin = request.form['pin']
 
+    if temppass == pin:
+        return render_template("changepassnext.html")
+    else:
+        return render_template("forgorpasswordNext.html",cmsg="Pin is incorrect. Please try again")
+    
 @app.route('/edituserprofileNext', methods = ['GET','POST'])
 def edituserprofileNext():
     if not session.get('cmail'):
