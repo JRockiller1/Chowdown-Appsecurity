@@ -1208,27 +1208,6 @@ def edituserprofileNext():
     flash("Successfully updated profile")
     return render_template('profile2.html', cmsg="Passsword Updated Succcessfully...!", cusinfo = customer)
 
-# @app.route('/updateuseraddress')
-# def updateuseraddress():
-#     if not session.get('cmail'):
-#         return redirect(request.url_root)
-#     return render_template('updateuseraddress.html')
-
-# @app.route('/updateuseraddressNext', methods = ['GET','POST'])
-# def updateuseraddressNext():
-#     if not session.get('cmail'):
-#         return redirect(request.url_root)
-#     cmail=session['cmail']
-#     c = User(None,None,None,None,None)
-#     c.set_address(request.form['caddress'])
-#     # cpassword = request.form['cpassword']
-    
-    
-#     customer=Customer.query.filter(Customer.cmail==cmail).first()
-#     customer.caddress = c.get_address()
-#     # customer.cpassword = cpassword
-#     db.session.commit()
-#     return render_template('updateuseraddress.html', cmsg="Address Updated Succcessfully...!")
 
 @app.route("/payment", methods=["GET","POST"])
 def finalpayment():
