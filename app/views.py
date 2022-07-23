@@ -1,24 +1,32 @@
 
+from locale import currency
 from flask_mail import Mail
 from flask import Flask, flash, render_template, render_template_string, url_for, request, session
-from werkzeug.utils import redirect
-# from app.baseAccount import User
-# from app.vendorAccount import Vendor
+from werkzeug.utils import redirect,secure_filename
 from sqlalchemy import and_
 from app import app, db
-from app.models import Customer, Restadmin, Items, Orders, Rating, Data,Promotion,charity_vote
+from app.models import Customer, Restadmin, Items, Orders, Rating,Promotion,charity_vote
 import datetime
 import random
 from flask_mail import Mail,Message
 import os
 import bcrypt
-
-
+import stripe
+import imgbbpy
+import aiohttp
+import asyncio
 
 # password for chowdownfeedback054@gmail.com: chowdownadmin123
 # maill pass zswcovyhpabvtnrs
 # put in os environ variable
 
+YOUR_DOMAIN = 'http://localhost:5000'
+
+# stripe_keys = {
+#     "secret_key": 'sk_test_51L7ztQFZRxIbs7Knrfzv2kk0AKxdl3Zdu5HAnHGbDE5gZq3cN4FJhlFARnyCXT3F1D1TiXQztF992q7pxz17F4Vk00qV2QyIEb',
+#     "publishable_key": 'pk_test_51L7ztQFZRxIbs7KnKj6cvm0iOLnojpA8zmi2xeC3D3Zxd9a2vDsEASKpRs9w9HWIRlWYhv9c70N07Ee55FYgYDWa00lV6QS5Yv',
+# }
+stripe.api_key = 'sk_test_51L7ztQFZRxIbs7Knrfzv2kk0AKxdl3Zdu5HAnHGbDE5gZq3cN4FJhlFARnyCXT3F1D1TiXQztF992q7pxz17F4Vk00qV2QyIEb'
 app.config.update(dict(
     MAIL_SERVER = 'smtp.gmail.com',
     MAIL_PORT = 587,
@@ -29,7 +37,9 @@ app.config.update(dict(
 ))
 mail = Mail(app)
 
-UPLOAD_FOLDER = 'app/static/images/product_image'
+
+# UPLOAD_FOLDER = 'app/static/images/product_image'
+UPLOAD_FOLDER = '/Users/gabri/appsec/appdev_final_8JUNE/Chowdown-Appsecurity/app/static/images/product_image'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
  
@@ -80,16 +90,6 @@ def indexmenu():
     restad = Restadmin.query.filter(Restadmin.rid == restid).first()
     return render_template('indexmenu.html',restad=restad, restadmin=items)
 
-
-
-@app.route('/testingxss', methods=['GET','POST'])
-def testing():
-    return render_template("testingxss.html")
-
-@app.route('/testingxss2',methods=['POST','GET'])
-def testing2():
-    comment = request.form['comment']
-    return render_template('testingxss.html',comment=comment)
 
 
 # RESTRAUNT/VENDOR
@@ -277,29 +277,7 @@ def menu1():
     # restad1 = Restadmin.query.filter(Restadmin.rid == restid).all()
     return render_template('restMenu.html',restad=restad, restadmin=items, rating=rating)	
 
-# @app.route('/showmyrestmenu',methods=['GET','POST'])
-# def showmyrestmenu():
-#     if not session.get('rmail'):
-#         return redirect(request.url_root)
-#     rmail=session['rmail']
-#     restad  = Restadmin.query.filter(Restadmin.rmail == rmail).first()
-#     restid=restad.rid
-#     items = Items.query.filter(Items.rid == restid).all()
-
-
-#     return render_template('showmymenu.html',restad=restad, restadmin=items)
-
-# @app.route('/showmyrestmenu2',methods=['GET','POST'])
-# def showmyrestmenu():
-#     if not session.get('rmail'):
-#         return redirect(request.url_root)
-#     rmail=session['rmail']
-#     restad  = Restadmin.query.filter(Restadmin.rmail == rmail).first()
-#     restid=restad.rid
-#     items = Items.query.filter(Items.rid == restid).all()
-
-
-#     return render_template('showmymenu.html',restad=restad, restadmin=items)
+#
 @app.route("/restdashboard", methods= ["POST","GET"])
 def restdashboard():
     if not session.get('rmail'):
@@ -364,7 +342,6 @@ def restdashboard():
     # previous month revenue
     
     # (current month revenue - previous month revenue) / previous month revenuye * 100
-    data = Data.query.filter(Data.rid==restid).all()
     user=[]
     for i in orders:
        if i.cid not in user:
@@ -402,7 +379,7 @@ def restdashboard():
     for name in items:
         mostfrequent = name.iname
 
-    return render_template("restdashboard.html", orders=orders, data1=data, 
+    return render_template("restdashboard.html", orders=orders,
     jan=round(jan,2),feb=round(feb,2), 
     mar=round(mar,2),apr=round(apr,2),
     may=round(may,2),jun=round(jun,2),
@@ -436,43 +413,58 @@ def additemNext():
         iprice = request.form['iprice']
         idescription = request.form["idesc"]
         file = request.files['ipic']
-
+    
     rmail=session['rmail']
     restad  = Restadmin.query.filter(Restadmin.rmail == rmail).first()
     restid=restad.rid
-    try:
-        items = Items(iname=iname, iprice=iprice, rid=restid, idesc=idescription)
-        # filename = secure_filename(pic.filename)
-        # mimetype = pic.mimetype
-        
-        db.session.add(items)
-        db.session.commit()
-        iid = items.iid
-        
-        if file.filename == '':
-            flash('No image selected for uploading')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-        
-            file.filename = str(iid) + ".png"
-        
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-    
-            
-            return redirect(url_for('resthome1'))
-    except:
+    items = Items(iname=iname, iprice=iprice, rid=restid, idesc=idescription,priceid="temp")
+    db.session.add(items)
+    db.session.commit()
+    iid = items.iid
 
-        if file.filename == '':
-            flash('No image selected for uploading')
-            return redirect(request.url)
-        if file and allowed_file(file.filename):
-        
-            file.filename = str(iid) + ".png"
-        
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
     
+    filename = secure_filename(file.filename)
+    # mimetype = pic.mimetype
+ 
+ 
+    if file.filename == '':
+        flash('No image selected for uploading')
+        return redirect(request.url)
+    elif file and allowed_file(file.filename):
             
-            return redirect(url_for('resthome1'))
+        file.filename = str(iid) + ".png"
+            
+            # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+   
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+       
+        client = imgbbpy.SyncClient('d92793a1e6a23ddf9b758139fce4a106')
+        image = client.upload(file='/Users/gabri/appsec/appdev_final_8JUNE/Chowdown-Appsecurity/app/static/images/product_image/' + filename)
+        print(image.url)
+        product = stripe.Product.create(
+            name=iname,
+            id = iid,
+            images = [image.url])
+        price = stripe.Price.create(
+            product=product.id,
+            unit_amount = round((float(iprice)*100)),
+            currency='sgd')
+        items = Items.query.filter(Items.iid==iid).first()
+        items.priceid = price.id
+        db.session.commit()
+    return redirect(url_for('resthome1'))
+    # except:
+
+    #     if file.filename == '':
+    #         flash('No image selected for uploading')
+    #         return redirect(request.url)
+    #     if file and allowed_file(file.filename):
+        
+    #         file.filename = str(iid) + ".png"
+        
+    #         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))    
+            
+    #         return redirect(url_for('resthome1'))
 
 # @app.route("/edit-product")
 # def edit():
@@ -524,6 +516,23 @@ def updateitemNext():
                 file.filename = str(iid) +".png"
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
         db.session.commit()
+        # add new price
+        price = stripe.Price.create(
+            product = item.iid,
+            unit_amount = round((float(iprice)*100)),
+            currency='sgd'
+        )
+        print(iname)
+        print(item.iid)
+        # change name.
+        stripe.Product.modify(
+            item.iid,
+            name = iname
+        )
+        # add new price to db
+        item.priceid = price.id 
+        db.session.commit()
+
         return redirect(url_for('resthome1'))
     else :
         # return redirect(url_for('updateitem'))		
@@ -574,6 +583,18 @@ def createpromonext():
     elif request.method == "POST":
         promocode = request.form['promocode']
         discount = request.form['discount']
+        duration = request.form['duration']
+    # create coupon, assign promocode to coupon
+    coupon = stripe.Coupon.create(
+        percent_off=discount,
+        duration="repeating",
+        duration_in_months = duration,
+        )
+    stripe.PromotionCode.create(
+        code=promocode,
+        coupon=coupon
+    )
+
     rmail=session['rmail']
     restad  = Restadmin.query.filter(Restadmin.rmail == rmail).first()
     restid=restad.rid
@@ -582,12 +603,10 @@ def createpromonext():
     db.session.commit()
     return redirect(url_for('resthome1'))
 
-@app.route('/cart', methods = ['GET','POST'])
-def payment():
-    if not session.get('cmail'):
-        return redirect(request.url_root)
+@app.route('/create-checkout-session',methods=['POST','GET'])
+def create_checkout_session():
     if request.method == "GET":
-        tprice = request.args.get("total")
+        # tprice = request.args.get("total")
         items = request.args.get("items")
         rid=request.args.get("restid")
         
@@ -596,155 +615,239 @@ def payment():
         tprice=request.form['total']
         items=request.form["items"]
         rid=request.form['restid']
-    print(items)
-    #//////////////////////////////////////////////////////////////////////////////////////// 
-    if(tprice=="0"):
-    # return (str(tprice=="0"))
-        return render_template('errorzero.html')	
-        # return redirect(url_for('restmenu'))
-        #////////////////////////////////////////////////////////////////////////////////////
-
-    cmail=session['cmail']
-    customer  = Customer.query.filter(Customer.cmail == cmail).first()
-    cid = customer.cid
-    promo = Promotion.query.filter(Promotion.rid==rid).all()
-    for i in promo:
-        print (i.promocode)
-    item = Items.query.filter(Items.iid == items)
-
-
 
     restadmin  = Restadmin.query.filter(Restadmin.rid == rid).first()
     # items = Items.query.filter(Items.rid == restid, Items.iname==restname).all()
-
     rname=restadmin.rname
-    myorders = Orders.query.filter(Orders.cid == cid).all()
-    print(myorders)
-    totalprice = 0
-    for i in myorders:
-        totalprice += i.tprice
-    print(totalprice)
-    if totalprice >= 0:
-        tier = "IRON"
-        discount = 0
-    if totalprice > 100:
-        tier = "BRONZE"
-        discount = 1
-    if totalprice > 500:
-        tier = "SILVER"
-        discount = 2
-    if totalprice > 2000:
-        tier = "GOLD"
-        discount = 5
-    if totalprice > 10000:
-        tier = "PLATNIUM"
-        discount = 8
-    # items = Items.query.filter()
-    # iname = restadmin.iname
-    ostatus="pending"
-    subtotal = float(tprice)
-    tprice = round(float(tprice),2)
-    if discount == 0:
-        pass
-    else:
-        tprice -= float(tprice)*(float(discount)/100)
-    x={temp:items.count(temp) for temp in items}
-    try:
-        c=","
-        x.pop(c)
-        print(items)
-        return render_template('cart.html' ,x=x, tprice=tprice, rname=rname ,items=items, rid=rid,promo=promo,tier=tier,discount=discount,subtotal=subtotal)
-    except:
-        print(items)
-        return render_template('cart.html' ,x=x,tprice=tprice, rname=rname ,items=items, rid=rid,promo=promo,tier=tier,discount=discount,subtotal=subtotal)
-
-@app.route("/discountedcart")
-def discountedcart():
-    if not session.get('cmail'):
-        return redirect(request.url_root)
-    if request.method == "GET":
-        tprice = request.args.get("tprice")
-        items = request.args.get("items")
-        rid=request.args.get("restid")
-        promocode = request.args.get("promocode")
-        subtotal = request.args.get("subtotal")
-    
-    elif request.method == "POST":
-        tprice=request.form['tprice']
-        items=request.form["items"]
-        rid=request.form['restid']
-        promocode = request.form["promocode"]
-        subtotal = request.form["subtotal"]
-    print(items)
-    print(tprice)
-    #//////////////////////////////////////////////////////////////////////////////////////// 
-    if(tprice=="0"):
-    # return (str(tprice=="0"))
-        return render_template('errorzero.html')	
-        # return redirect(url_for('restmenu'))
-        #////////////////////////////////////////////////////////////////////////////////////
-
     cmail=session['cmail']
     customer  = Customer.query.filter(Customer.cmail == cmail).first()
+
+    line_items = []
+    quantity = 0
+    for i in items.split(','):
+        item2 = Items.query.filter(Items.iid == i).first()
+        # get price and quantity based on item id. one by one
+        
+        print(items.split(',').count(i))
+        if items.split(',').count(i)>1:
+            quantity = items.split(',').count(i)
+            priceid = item2.priceid
+            a = {
+                'price':priceid,
+                # need to get price id instead of actual price
+                'quantity':quantity
+            }
+            line_items.append(a)
+            break
+            
+        # do if loop if same item but > 1 item
+        else:
+            priceid = item2.priceid
+            a = {
+                'price':priceid,
+                'quantity':1
+            }
+            line_items.append(a)
+        # append to line items for stipe checkout
+    print(line_items)
+
+    # try:
+    checkout_session = stripe.checkout.Session.create(
+        line_items=line_items,
+        mode='payment',
+        allow_promotion_codes= True,
+        success_url= YOUR_DOMAIN + '/success.html',
+        cancel_url= YOUR_DOMAIN + '/cancel.html',
+        )
+    currentDate = datetime.datetime.now()
+    #change to show how month work for graph
+    month = currentDate.month
+    paymentType = "DELETE THIS ATTRIBuTEstr"
     cid = customer.cid
-    promo = Promotion.query.filter(Promotion.rid==rid).all()
-    promocode1 = ""
-    for i in promo:
-        if promocode == i.promocode:
-            tprice = float(tprice)
-            print(i.discount)
-            discount = (i.discount/100)*tprice
-            dprice = tprice - discount
-            discountpercent = i.discount
-            # round(tprice,2)
-            # print(tprice)
+    orders = Orders(cid=customer.cid, rid=rid, items=items,tprice=tprice,payment=paymentType,month1=month,rname=rname)
+    
+      
+
+    
+    if orders :
+        db.session.add(orders)
+        db.session.commit()
+
+    return redirect(checkout_session.url,code=303)
+
+
+
+
+
+
+# @app.route('/cart', methods = ['GET','POST'])
+# def payment():
+#     if not session.get('cmail'):
+#         return redirect(request.url_root)
+#     if request.method == "GET":
+#         tprice = request.args.get("total")
+#         items = request.args.get("items")
+#         rid=request.args.get("restid")
+        
+    
+#     elif request.method == "POST":
+#         tprice=request.form['total']
+#         items=request.form["items"]
+#         rid=request.form['restid']
+#     print("========================================= items")
+#     print(items)
+
+    
+
+#     #//////////////////////////////////////////////////////////////////////////////////////// 
+#     if(tprice=="0"):
+#     # return (str(tprice=="0"))
+#         return render_template('errorzero.html')	
+#         # return redirect(url_for('restmenu'))
+#         #////////////////////////////////////////////////////////////////////////////////////
+
+#     cmail=session['cmail']
+#     customer  = Customer.query.filter(Customer.cmail == cmail).first()
+#     cid = customer.cid
+#     promo = Promotion.query.filter(Promotion.rid==rid).all()
+#     # for i in promo:
+#     #     print (i.promocode)
+#     item = Items.query.filter(Items.iid == items)
+#     item2 = Items.query.filter(Items.iid == items)
+    
+
+
+#     restadmin  = Restadmin.query.filter(Restadmin.rid == rid).first()
+#     # items = Items.query.filter(Items.rid == restid, Items.iname==restname).all()
+
+#     rname=restadmin.rname
+#     myorders = Orders.query.filter(Orders.cid == cid).all()
+#     print(myorders)
+#     totalprice = 0
+#     for i in myorders:
+#         totalprice += i.tprice
+#     print(totalprice)
+#     if totalprice >= 0:
+#         tier = "IRON"
+#         discount = 0
+#     if totalprice > 100:
+#         tier = "BRONZE"
+#         discount = 1
+#     if totalprice > 500:
+#         tier = "SILVER"
+#         discount = 2
+#     if totalprice > 2000:
+#         tier = "GOLD"
+#         discount = 5
+#     if totalprice > 10000:
+#         tier = "PLATNIUM"
+#         discount = 8
+#     # items = Items.query.filter()
+#     # iname = restadmin.iname
+#     ostatus="pending"
+#     subtotal = float(tprice)
+#     tprice = round(float(tprice),2)
+#     if discount == 0:
+#         pass
+#     else:
+#         tprice -= float(tprice)*(float(discount)/100)
+#     x={temp:items.count(temp) for temp in items}
+#     try:
+#         c=","
+#         x.pop(c)
+#         print(items)
+#         return render_template('cart.html' ,x=x, tprice=tprice, rname=rname ,items=items, rid=rid,promo=promo,tier=tier,discount=discount,subtotal=subtotal)
+#     except:
+#         print(items)
+#         return render_template('cart.html' ,x=x,tprice=tprice, rname=rname ,items=items, rid=rid,promo=promo,tier=tier,discount=discount,subtotal=subtotal)
+
+# @app.route("/discountedcart")
+# def discountedcart():
+#     if not session.get('cmail'):
+#         return redirect(request.url_root)
+#     if request.method == "GET":
+#         tprice = request.args.get("tprice")
+#         items = request.args.get("items")
+#         rid=request.args.get("restid")
+#         promocode = request.args.get("promocode")
+#         subtotal = request.args.get("subtotal")
+    
+#     elif request.method == "POST":
+#         tprice=request.form['tprice']
+#         items=request.form["items"]
+#         rid=request.form['restid']
+#         promocode = request.form["promocode"]
+#         subtotal = request.form["subtotal"]
+#     print(items)
+#     print(tprice)
+#     #//////////////////////////////////////////////////////////////////////////////////////// 
+#     if(tprice=="0"):
+#     # return (str(tprice=="0"))
+#         return render_template('errorzero.html')	
+#         # return redirect(url_for('restmenu'))
+#         #////////////////////////////////////////////////////////////////////////////////////
+
+#     cmail=session['cmail']
+#     customer  = Customer.query.filter(Customer.cmail == cmail).first()
+#     cid = customer.cid
+#     promo = Promotion.query.filter(Promotion.rid==rid).all()
+#     promocode1 = ""
+#     for i in promo:
+#         if promocode == i.promocode:
+#             tprice = float(tprice)
+#             print(i.discount)
+#             discount = (i.discount/100)*tprice
+#             dprice = tprice - discount
+#             discountpercent = i.discount
+#             # round(tprice,2)
+#             # print(tprice)
             
 
-    restadmin  = Restadmin.query.filter(Restadmin.rid == rid).first()
-    # items = Items.query.filter(Items.rid == restid, Items.iname==restname).all()
+#     restadmin  = Restadmin.query.filter(Restadmin.rid == rid).first()
+#     # items = Items.query.filter(Items.rid == restid, Items.iname==restname).all()
 
-    rname=restadmin.rname
+#     rname=restadmin.rname
 
-    # items = Items.query.filter()
-    # iname = restadmin.iname
-    ostatus="pending"
-    totalprice = 0
-    myorders = Orders.query.filter(Orders.cid == cid).all()
+#     # items = Items.query.filter()
+#     # iname = restadmin.iname
+#     ostatus="pending"
+#     totalprice = 0
+#     myorders = Orders.query.filter(Orders.cid == cid).all()
 
-    for i in myorders:
-        totalprice += i.tprice
-    if totalprice >= 0:
-        tier = "IRON"
-        discount1 = 0
-    if totalprice > 100:
-        tier = "BRONZE"
-        discount1 = 1
-    if totalprice > 500:
-        tier = "SILVER"
-        discount1 = 2
-    if totalprice > 2000:
-        tier = "GOLD"
-        discount1 = 5
-    if totalprice > 10000:
-        tier = "PLATNIUM"
-        discount1 = 8
-    x={temp:items.count(temp) for temp in items}
-    # if discount1 == 0:
-    #     pass
-    # else:
-    #     tprice = t float(tprice)*(float(discount1/100))
+#     for i in myorders:
+#         totalprice += i.tprice
+#     if totalprice >= 0:
+#         tier = "IRON"
+#         discount1 = 0
+#     if totalprice > 100:
+#         tier = "BRONZE"
+#         discount1 = 1
+#     if totalprice > 500:
+#         tier = "SILVER"
+#         discount1 = 2
+#     if totalprice > 2000:
+#         tier = "GOLD"
+#         discount1 = 5
+#     if totalprice > 10000:
+#         tier = "PLATNIUM"
+#         discount1 = 8
+#     x={temp:items.count(temp) for temp in items}
+#     # if discount1 == 0:
+#     #     pass
+#     # else:
+#     #     tprice = t float(tprice)*(float(discount1/100))
 
-    # tprice = round((dprice - totalprice),2)
-    print("ACTUAL TOTAL PRICE BOZO TO BE SOTRED IN DATABASE")
-    print(dprice)
-    try:
-        c=","
-        x.pop(c)
+#     # tprice = round((dprice - totalprice),2)
+#     print("ACTUAL TOTAL PRICE BOZO TO BE SOTRED IN DATABASE")
+#     print(dprice)
+#     try:
+#         c=","
+#         x.pop(c)
 
-        return render_template('cart_afterdiscount.html' ,x=x, tprice=tprice, dprice=round(dprice,2),rname=rname ,items=items, rid=rid,promo=promo,promocode=promocode,tier=tier,discount1=discount1,subtotal=subtotal,discountpercent=discountpercent)
-    except:
+#         return render_template('cart_afterdiscount.html' ,x=x, tprice=tprice, dprice=round(dprice,2),rname=rname ,items=items, rid=rid,promo=promo,promocode=promocode,tier=tier,discount1=discount1,subtotal=subtotal,discountpercent=discountpercent)
+#     except:
   
-        return render_template('cart_afterdiscount.html' ,x=x, tprice=tprice, dprice=round(dprice,2),rname=rname ,items=items, rid=rid,promo=promo,promocode=promocode,tier=tier,discount1=discount1,subtotal=subtotal,discountpercent =discountpercent)
+#         return render_template('cart_afterdiscount.html' ,x=x, tprice=tprice, dprice=round(dprice,2),rname=rname ,items=items, rid=rid,promo=promo,promocode=promocode,tier=tier,discount1=discount1,subtotal=subtotal,discountpercent =discountpercent)
 
 
 
@@ -1209,21 +1312,24 @@ def edituserprofileNext():
     return render_template('profile2.html', cmsg="Passsword Updated Succcessfully...!", cusinfo = customer)
 
 
-@app.route("/payment", methods=["GET","POST"])
-def finalpayment():
-    if request.method == "GET":
-        tprice = request.args.get("tprice")
-        items = request.args.get("items")
-        rid=request.args.get("restid")
+
+
+# @app.route("/payment", methods=["GET","POST"])
+# def finalpayment():
+#     if request.method == "GET":
+#         tprice = request.args.get("tprice")
+#         items = request.args.get("items")
+#         rid=request.args.get("restid")
         
     
-    elif request.method == "POST":
-        tprice=request.form['tprice']
-        items=request.form["items"]
-        rid=request.form['restid']
+#     elif request.method == "POST":
+#         tprice=request.form['tprice']
+#         items=request.form["items"]
+#         rid=request.form['restid']
 
         
-    return render_template('payment.html', rid=rid,tprice=tprice,items=items)
+#     return render_template('payment.html', rid=rid,tprice=tprice,items=items)
+
 
 
 
@@ -1254,15 +1360,15 @@ def givereview():
     currentDate = datetime.datetime.now()
     year = currentDate.year
     orders = Orders(cid=customer.cid, rid=rid, items=items,tprice=tprice,payment=paymentType,month1=month,rname=rname)
-    data = Data(rid=rid, month=month, year=year)
+    # data = Data(rid=rid, month=month, year=year)
     cid = customer.cid
     
     
     if orders :
         db.session.add(orders)
         db.session.commit()
-        db.session.add(data)
-        db.session.commit()
+        # db.session.add(data)
+        # db.session.commit()
     # restadmin  = Restadmin.query.filter(Restadmin.rid == rid).first()
     return render_template('givereview.html', rid = rid,rname=rname,cid=cid)
 
@@ -1338,7 +1444,7 @@ def buyHistory():
         totalprice += i.tprice
      
     
-    return render_template("buyHistory.html", cusname=customer.cname, myorder=myorders, totalprice=round(totalprice,2))
+    return render_template("buyhistory.html", cusname=customer.cname, myorder=myorders, totalprice=round(totalprice,2))
 
 
 

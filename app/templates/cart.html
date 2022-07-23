@@ -78,7 +78,7 @@
                 <div class="col">TOTAL PRICE</div>
                 <div class="col text-right">${{tprice}}</div>
             </div> 
-            <form action="/payment" method="POST">
+            <form action="/create-checkout-session" method="POST">
               <input type="text" hidden="true" value="{{rid}}" name="restid">
               <input type="text" class="form-control" id="tprice" name="tprice"value="{{tprice}}" hidden="true">
               <input type="text"  name="items" value="{{items}}"  hidden="true" />

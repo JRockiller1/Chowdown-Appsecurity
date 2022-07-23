@@ -31,6 +31,7 @@ class Items(db.Model):
     iprice = db.Column(db.Integer, nullable=False)
     rid = db.Column(db.Integer, db.ForeignKey('restadmin.rid'), nullable=False)
     idesc = db.Column(db.String(250))
+    priceid = db.Column(db.String(250),nullable=False)
 
 
 
@@ -52,11 +53,11 @@ class Rating(db.Model):
     date = db.Column(db.Text)
     cname = db.Column(db.Text)
 
-class Data(db.Model):
-    key2 = db.Column(db.Integer,primary_key=True, autoincrement=True)
-    rid = db.Column(db.Integer, db.ForeignKey('restadmin.rid'), nullable=False)
-    month = db.Column(db.Integer, nullable=False)
-    year = db.Column(db.Integer, nullable=True)
+# class Data(db.Model):
+#     key2 = db.Column(db.Integer,primary_key=True, autoincrement=True)
+#     rid = db.Column(db.Integer, db.ForeignKey('restadmin.rid'), nullable=False)
+#     month = db.Column(db.Integer, nullable=False)
+#     year = db.Column(db.Integer, nullable=True)
 
 class Promotion(db.Model):
     key3 = db.Column(db.Integer,primary_key=True, autoincrement=True)

@@ -125,25 +125,22 @@
                             console.log(items)
                             console.log(ipayment)
                         </script>
-                        {% if i.payment == "cred" or i.payment =="Credit card"%}
+                        
                 
                             <td scope="row"> {{i.items}} </td>
                             <td><span id="paym" class="fa fa-credit-card"></span></td>
                             <td class="text-muted">{{i.rname}}</td>
                             <td class="d-flex justify-content-end align-items-center" id="totalprice1">{{i.tprice}}</td>
-                        {% elif i.payment == "payp" or i.payment == "Paypal" %}
                     
-                            <td scope="row"> {{i.items}} </td>
+                            <!-- <td scope="row"> {{i.items}} </td>
                             <td><span id="paym" class="fa fa-paypal"></span></td>
                             <td class="text-muted">{{i.rname}}</td> 
                             <td class="d-flex justify-content-end align-items-center" id="totalprice1">{{i.tprice}}</td>
-                        {% elif i.payment == "netb" or i.payment == "Net banking" %}
               
                             <td scope="row"> {{i.items}} </td>
                             <td><span id="paym" class="fa fa-bank"></span></td>
                             <td class="text-muted">{{i.rname}}</td>
-                            <td class="d-flex justify-content-end align-items-center" id="totalprice1">{{i.tprice}}</td>
-                        {% endif %}
+                            <td class="d-flex justify-content-end align-items-center" id="totalprice1">{{i.tprice}}</td> -->
                     </tr>
                 
                     {% endfor %}

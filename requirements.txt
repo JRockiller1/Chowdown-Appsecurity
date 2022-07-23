@@ -6,3 +6,4 @@ Flask-WTF == 0.15.1
 SQLAlchemy == 1.4.25
 WTForms == 2.3.3
 bcrypt == 3.2.2
+stripe == 3.5.0

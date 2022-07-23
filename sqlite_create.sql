@@ -27,7 +27,7 @@ CREATE TABLE items (
 	iid integer,
 	iname varchar,
 	iprice integer,
-	rid integer
+	rid integer,
 );
 
 CREATE TABLE orders (
