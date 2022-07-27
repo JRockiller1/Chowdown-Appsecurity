@@ -1,5 +1,4 @@
-
-from locale import currency
+import logging, logging.config
 from flask_mail import Mail
 from flask import Flask, flash, render_template, render_template_string, url_for, request, session
 from werkzeug.utils import redirect,secure_filename
@@ -10,31 +9,50 @@ import datetime
 import random
 from flask_mail import Mail,Message
 import os
+from os import path
 import bcrypt
 import stripe
 import imgbbpy
-import aiohttp
-import asyncio
+import flask_monitoringdashboard as dashboard
 
-# password for chowdownfeedback054@gmail.com: chowdownadmin123
-# maill pass zswcovyhpabvtnrs
-# put in os environ variable
 
+# use this for config file for dashbaord monitoring
+
+logging_conf_path = os.path.join(os.path.dirname(__file__), 'logging.conf')
+logging.config.fileConfig(logging_conf_path)
+
+# dashboard admin setup monitoring
+dashboard.config.init_from(file='../../config.cfg')
+# config file dont work
+dashboard.bind(app)
 YOUR_DOMAIN = 'http://localhost:5000'
 
 # stripe_keys = {
 #     "secret_key": 'sk_test_51L7ztQFZRxIbs7Knrfzv2kk0AKxdl3Zdu5HAnHGbDE5gZq3cN4FJhlFARnyCXT3F1D1TiXQztF992q7pxz17F4Vk00qV2QyIEb',
 #     "publishable_key": 'pk_test_51L7ztQFZRxIbs7KnKj6cvm0iOLnojpA8zmi2xeC3D3Zxd9a2vDsEASKpRs9w9HWIRlWYhv9c70N07Ee55FYgYDWa00lV6QS5Yv',
 # }
+
 stripe.api_key = 'sk_test_51L7ztQFZRxIbs7Knrfzv2kk0AKxdl3Zdu5HAnHGbDE5gZq3cN4FJhlFARnyCXT3F1D1TiXQztF992q7pxz17F4Vk00qV2QyIEb'
-app.config.update(dict(
-    MAIL_SERVER = 'smtp.gmail.com',
-    MAIL_PORT = 587,
-    MAIL_USE_TLS = True,
-    MAIL_USE_SSL = False,
-    MAIL_USERNAME = 'chowdownfeedback054@gmail.com',
-    MAIL_PASSWORD = 'zswcovyhpabvtnrs'
-))
+
+# password for chowdownfeedback054@gmail.com: chowdownadmin123
+# maill pass pzwzrpxhkwyhowjm
+# put in os environ variable
+
+# app.config.update(dict(
+#     MAIL_SERVER = 'smtp.gmail.com',
+#     MAIL_PORT = 465,
+#     MAIL_USE_TLS = False,
+#     MAIL_USE_SSL = True,
+#     MAIL_USERNAME = 'chowdownfeedback054@gmail.com',
+#     MAIL_PASSWORD = 'fmpnqsgxaseqyyui'
+# ))
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] =  'chowdownfeedback054@gmail.com'
+app.config['MAIL_PASSWORD'] = 'fmpnqsgxaseqyyui'
+
 mail = Mail(app)
 
 
@@ -45,51 +63,52 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
  
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
  
+
+file_log = logging.getLogger('filelog')
+file_log.propagate = False
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+# deelte ltr
+@app.route('/fordash')
+def fashhhd():
+    return "da"
+# @app.before_first_request
+# def before_first_request():
+#     app.logger.setLevel(logging.CRITICAL)
 
 @app.route('/index')
 @app.route("/")
 def landingPage():
-    # # if logged in to an account
-    # # 1st of every month popup form on landing page when they visit the website
-    # currentDate = datetime.datetime.now()
-    # month = currentDate.month
-    # orgs2 = charity_vote.query.filter(charity_vote.month==month).all()
-    # minds = 0
-    # spca = 0
-    # scs = 0
-    # for i in orgs2:
-    #     if i.organisation == "MINDS":
-    #         minds += 1
-    #     elif i.organisation == "SPCA":
-    #         spca += 1
-    #     elif i.organisation == "SCS":
-    #         scs += 1
-    # organisations = ["MINDS", "SPCA", "SCS"]
-    # charity = [minds,spca,scs]
-    # chosen=organisations[charity.index(max(charity))]
-    # print(chosen)
+    ip_addr = request.remote_addr
+# file log only warning>
+    app.logger.info("User IP: " + ip_addr + " visited the site")
+    app.logger.warning("fein")
+    file_log.info("TESTING FILELOG")
+    # FILE_LOG SHLD GO TO LOGS2 (no werkzeug, for important info, errors/signups/transactions)
+    # app.logger(root) SHOULD GO LOGS1 (every other log werkzeug, assets etc, general info)
     return render_template('landingPage.html', restadmin=Restadmin.query.all())
 
 @app.errorhandler(404)
 def error_404(e):
     return render_template("Errorpage.html")
-
-@app.route('/indexmenu', methods = ['GET','POST'])
-def indexmenu():
-    if request.method == "GET":
-        restid = request.args.get("restid")
     
-    elif request.method == "POST":
-        restid = request.form['restid']
 
-    items = Items.query.filter(Items.rid == restid).all()
-    restad = Restadmin.query.filter(Restadmin.rid == restid).first()
-    return render_template('indexmenu.html',restad=restad, restadmin=items)
 
+# @app.route('/indexmenu', methods = ['GET','POST'])
+# def indexmenu():
+#     if request.method == "GET":
+#         restid = request.args.get("restid")
+    
+#     elif request.method == "POST":
+#         restid = request.form['restid']
+
+#     items = Items.query.filter(Items.rid == restid).all()
+#     restad = Restadmin.query.filter(Restadmin.rid == restid).first()
+#     return render_template('indexmenu.html',restad=restad, restadmin=items)
+
+# remove indexmenu.html
 
 
 # RESTRAUNT/VENDOR
@@ -99,6 +118,7 @@ def restlogin():
 
 @app.route('/restSignup-next', methods = ['GET','POST'])
 def restregisterbyadmin():	
+    
     if request.method == "GET":
         rmail = request.args.get("rmail")
         rmobile = request.args.get("rmobile")
@@ -115,6 +135,8 @@ def restregisterbyadmin():
         pwhash = bcrypt.hashpw(rpassword.encode(),salt)
 
         if restadmin:
+            file_log.warning("Restraunt Owner: "+ rname + " has failed to register")
+
             # return redirect(url_for('adminHome1'))		
             return render_template('signup-vendor.html', admsg="Restaurant Already Registered...!")
         # add in alert to say restraunt is registered already
@@ -123,7 +145,7 @@ def restregisterbyadmin():
         
             db.session.add(newrest)
             db.session.commit()
-
+            file_log.info("Restraunt Owner: "+ rname + " has successfully registered")
             return render_template('login-vendor.html')
             # return render_template('vendorProfile.html', ssmsg="Restaurant Registered Succcessfully...!")
 
@@ -147,17 +169,20 @@ def restloginNext():
         restadmin  = Restadmin.query.filter(Restadmin.rmail == rmail).first()
         pw_storedhash = restadmin.rpassword
 
+        ip = request.remote_addr
 
         # if restadmin and rpassword.isnumeric():
         #     session['rmail'] = request.form['rmail']
         #     return redirect(url_for('resthome1'))
         if restadmin and bcrypt.checkpw(rpassword.encode(),pw_storedhash) :
             session['rmail'] = request.form['rmail']
+            file_log.info("Restraunt Owner: "+ str(restadmin.rid) + " has successfully logged in")
             return redirect(url_for('resthome1'))
             # return render_template('resthome.html',rusname=restadmin.rname,restadmin = Restadmin.query.all())
             # return render_template('resthome.html',restadmin = Restadmin.query.all())
             
-       
+        file_log.info("Restraunt Owner IP: "+ ip + " has failed login (Wrong credentials/ do not exist)")
+
         return render_template('login-vendor.html',rusname="Login failed...\n Please enter valid username and password!")
 
 @app.route('/restprofile')
@@ -223,8 +248,12 @@ def updatepasswordrest():
         pwhash = bcrypt.hashpw(rpassword.encode(),salt)
         restadmin.rpassword=pwhash
         db.session.commit()
+        file_log.info("Restraunt Owner ID : "+ str(restadmin.rid) +" has successfully updated password")
+
         return render_template('changepassrestnext.html',cmsg1="Sucessfully updated password")
     else:
+        file_log.warning("Restraunt Owner ID : "+ restadmin.rid +" has failed to update password")
+
         return render_template('changepassrestnext.html',cmsg2="Passwords do not match")
 
 
@@ -246,8 +275,10 @@ def editrestprofileNext():
     restadmin.raddress = raddress
     restadmin.rpassword = rpassword
     db.session.commit()
-    flash("Successfully updated profile")
+    file_log.info("Restraunt Owner ID : "+ str(restadmin.rid) +" has successfully updated credentials")
     return render_template('vendorProfile.html', cmsg="Passsword Updated Succcessfully...!", restinfo = restadmin)
+
+
 @app.route('/resthome1',methods=['GET','POST'])
 def resthome1():
     if not session.get('rmail'):
@@ -417,10 +448,6 @@ def additemNext():
     rmail=session['rmail']
     restad  = Restadmin.query.filter(Restadmin.rmail == rmail).first()
     restid=restad.rid
-    items = Items(iname=iname, iprice=iprice, rid=restid, idesc=idescription,priceid="temp")
-    db.session.add(items)
-    db.session.commit()
-    iid = items.iid
 
     
     filename = secure_filename(file.filename)
@@ -429,13 +456,16 @@ def additemNext():
  
     if file.filename == '':
         flash('No image selected for uploading')
+        file_log.warning("Restraunt Owner ID : "+ str(restad.rid) +" failed to add item; No image provided.")
         return redirect(request.url)
     elif file and allowed_file(file.filename):
-            
+        items = Items(iname=iname, iprice=iprice, rid=restid, idesc=idescription,priceid="temp")
+        db.session.add(items)
+        db.session.commit()
+        iid = items.iid
+
         file.filename = str(iid) + ".png"
-            
-            # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-   
+ 
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
        
         client = imgbbpy.SyncClient('d92793a1e6a23ddf9b758139fce4a106')
@@ -452,6 +482,8 @@ def additemNext():
         items = Items.query.filter(Items.iid==iid).first()
         items.priceid = price.id
         db.session.commit()
+        file_log.warning("Restraunt Owner ID : "+ str(restad.rid) +",Successfully added item " + str(items.iid) + " to database.")
+
     return redirect(url_for('resthome1'))
     # except:
 
@@ -493,11 +525,6 @@ def updateitemNext():
         iprice = request.form['iprice']
         idesc = request.form['idesc']
         file = request.files['ipic']
-        # iname = request.form['iname']
-        # iprice = request.form['iprice']
-        # p = Product(None,None)
-        # p.set_price(request.form['iprice'])
-        # p.set_name(request.form['iname'])
         
     rmail=session['rmail']
     restad  = Restadmin.query.filter(Restadmin.rmail == rmail).first()
@@ -516,22 +543,26 @@ def updateitemNext():
                 file.filename = str(iid) +".png"
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
         db.session.commit()
-        # add new price
+        file_log.info("Item ID : "+ str(item.iid) +" has been updated and saved into database.")
+
+
+        stripe.Product.modify(str(item.iid), name=iname)
+
+        stripe.Price.modify(
+            item.priceid,active=False
+        )
         price = stripe.Price.create(
             product = item.iid,
             unit_amount = round((float(iprice)*100)),
             currency='sgd'
         )
-        print(iname)
-        print(item.iid)
+
         # change name.
-        stripe.Product.modify(
-            item.iid,
-            name = iname
-        )
+        
         # add new price to db
         item.priceid = price.id 
         db.session.commit()
+        file_log.info("Item ID : "+ str(item.iid) +" has been updated with new stripe price ID.")
 
         return redirect(url_for('resthome1'))
     else :
@@ -563,9 +594,18 @@ def deleteitemNext():
 
    
     item = Items.query.filter(and_(Items.iid ==iid,Items.rid==restid)).first()
-    if item :          
+    print(type(item.iid))
+    if item : 
+        stripe.Price.modify(
+            item.priceid, active=False
+        )
+        # dont demo this
+        stripe.Product.delete(str(item.iid))
+        # havent check if this works
         db.session.delete(item)
         db.session.commit()
+        file_log.warning("Item ID : "+ str(item.iid) +" has been deleted from database and stripe.")
+
         return redirect(url_for('resthome1'))
     else:
         errorcode = "Product ID is invalid. Please enter again"
@@ -601,6 +641,8 @@ def createpromonext():
     promotion = Promotion(rid=restid, promocode=promocode, discount=discount)
     db.session.add(promotion)
     db.session.commit()
+    file_log.info("Promocode " + str(promotion.key3) +" has been added to stripe and database")
+
     return redirect(url_for('resthome1'))
 
 @app.route('/create-checkout-session',methods=['POST','GET'])
@@ -650,14 +692,15 @@ def create_checkout_session():
             line_items.append(a)
         # append to line items for stipe checkout
     print(line_items)
-
+ 
     # try:
     checkout_session = stripe.checkout.Session.create(
         line_items=line_items,
         mode='payment',
         allow_promotion_codes= True,
-        success_url= YOUR_DOMAIN + '/success.html',
-        cancel_url= YOUR_DOMAIN + '/cancel.html',
+        success_url= 'https://127.0.0.1:5000/user-landing',
+        cancel_url= 'https://127.0.0.1:5000/user-landing',
+        # configure ltr
         )
     currentDate = datetime.datetime.now()
     #change to show how month work for graph
@@ -666,18 +709,12 @@ def create_checkout_session():
     cid = customer.cid
     orders = Orders(cid=customer.cid, rid=rid, items=items,tprice=tprice,payment=paymentType,month1=month,rname=rname)
     
-      
-
-    
     if orders :
         db.session.add(orders)
         db.session.commit()
+    file_log.info("User: " + str(customer.cid) + "has been redirected to stripe checkout for order " + str(orders.ohash))
 
     return redirect(checkout_session.url,code=303)
-
-
-
-
 
 
 # @app.route('/cart', methods = ['GET','POST'])
@@ -899,6 +936,7 @@ def forgorpasswordrest():
 
         
     new_pass = random.randint(100,999)
+    file_log.info("Random 3-digit pin generated for restraunt owner")
 
     return render_template('forgorpasswordrest.html',temppass=new_pass)
 
@@ -914,14 +952,24 @@ def forgorpasswordNextrest():
         remail = request.form["rmail"]
 
     restadmin=Restadmin.query.filter(Restadmin.rmail==remail).first()
-    rmail = restadmin.rmail
-        # send pin to email
-    msg = Message("Hello from Chow Down! Here is your pin to access your account.", sender="chowdownadmin054@gmail.com", recipients=[rmail])
-    msg.body = "Your Pin: " + str(temppass)
-    mail.send(msg)
-    db.session.commit()
-    session['rmail'] = rmail
-    return render_template('forgorpasswordNextrest.html',temppass=temppass,restinfo = restadmin)
+    if restadmin:
+        rmail = restadmin.rmail
+        # error handling if wrong email? (testing)
+            # send pin to email
+        msg = Message("Hello from Chow Down! Here is your pin to access your account.", sender="chowdownadmin054@gmail.com", recipients=[rmail])
+        msg.body = "Your Pin: " + str(temppass)
+        mail.send(msg)
+        db.session.commit()
+        session['rmail'] = rmail
+        file_log.warning("Randomly generated 3 digit PIN has been sent to Restraunt Owner's email. Restraunt ID: " + rmail)
+
+        return render_template('forgorpasswordNextrest.html',temppass=temppass,restinfo = restadmin)
+    else:
+        ip = request.remote_addr
+        file_log.warning("Fail to recognise email associated with Restraunt Owner account.User IP: " + ip)
+        # put cmsg to say no such email for account found
+        return render_template('forgorpasswordrest.html')
+
 
 @app.route('/verifyrest', methods=['POST','GET'])
 def verifyrest():
@@ -932,10 +980,16 @@ def verifyrest():
     elif request.method == "POST":
         temppass = request.form['temp']
         pin = request.form['pin']
+    rmail = session['rmail']
+    rest = Restadmin.query.filter(Restadmin.rmail==rmail).first()
 
     if temppass == pin:
+        file_log.warning("Restraunt Owner " + str(rest.rid) + " has succesfully passed verification. Redirecting to change password now")
+
         return render_template("changepassrestnext.html")
     else:
+        file_log.warning("Restraunt Owner " + rest.rid + " has entered incorrect pin for verification.")
+
         return render_template("forgorpasswordNextrest.html",cmsg="Pin is incorrect. Please try again")
 # =====================================================================================================================
 # CUSTOMERS
@@ -982,6 +1036,8 @@ def success():
             customer = Customer(cname=cname,cmail=cmail,cmobile=cmobile, caddress=caddress, cpassword=pwhash)
             db.session.add(customer)
             db.session.commit()
+            file_log.info("Customer: "+ str(customer.cid) + " has successfully registered")
+
             return render_template('login.html')
 
 
@@ -996,13 +1052,15 @@ def feedback():
         name = request.form['name']
         subject = request.form['subject']
         message = request.form['message']
-
+    ip = request.remote_addr
     msg = Message("Hello from Chow Down!", sender="chowdownadmin054@gmail.com",recipients=[fmail])
     msg2 = Message("Customer Feedback/Enquiry", sender="chowdownadmin054@gmail.com", recipients=["chowdownadmin054@gmail.com"])
     msg.body = "Greetings " + name + "! We have received your enquiry and will get back to you as soon as possible!"
     msg2.body = "From: " + fmail + "\n" + "Subject: " + subject + "\n" + "Message: " + message
     mail.send(msg)
     mail.send(msg2)
+    file_log.info("Feedback email sent by user with IP: " + ip)
+
     return render_template("landingPage.html")
 
 
@@ -1012,10 +1070,12 @@ def newsletter():
         nmail=request.args.get("nmail")
     elif request.method == "POST":
         nmail = request.form['nmail']
-
+    ip = request.remote_addr
     msg = Message("Hello from Chow Down!", sender="chowdownadmin054@gmail.com",recipients=[nmail])
     msg.body = "Greetings! You are now subscribed to our newsletter!"
     mail.send(msg)
+    file_log.info("User with IP: " + ip + "has signed up for newsletter")
+
     return url_for("landingPage")
 
 
@@ -1033,6 +1093,10 @@ def feedbacklogged():
     msg = Message("Hello from Chow Down!", sender="chowdownadmin054@gmail.com",recipients=[fmail])
     msg.body = "Greetings " + name + "! We have received your enquiry and will get back to you as soon as possible!"
     mail.send(msg)
+    cmail = session['cmail']
+    customer = Customer.query.filter(Customer.cmail == cmail).first()
+    file_log.info("User ID: " + str(customer.cid) + "has sent a feedback")
+
     return render_template("loggedinlanding.html")
 
 
@@ -1045,6 +1109,10 @@ def newsletterlogged():
     msg = Message("Hello from Chow Down!", sender="chowdownadmin054@gmail.com",recipients=[nmail])
     msg.body = "Greetings! You are now subscribed to our newsletter!"
     mail.send(msg)
+    cmail = session['cmail']
+    customer = Customer.query.filter(Customer.cmail == cmail).first()
+    file_log.info("User ID: " + str(customer.cid) + "has signed up for newsletter")
+
     return render_template("loggedinlanding.html")
 
 
@@ -1056,6 +1124,7 @@ def login():
 def loginsuccess():
     # if not session.get('cmail'):
     #     return redirect(request.url_root)
+    ip = request.remote_addr
     if request.method == "GET":
         cmail = request.args.get("cmail")
         cpassword = request.args.get("cpassword")
@@ -1066,16 +1135,13 @@ def loginsuccess():
   
         customer  = Customer.query.filter(Customer.cmail == cmail).first()
         pw_storedhash = customer.cpassword
-    
-        # if customer and cpassword.isnumeric():
-        #     session['cmail'] = request.form['cmail']
-        #     return redirect(url_for('userLanding'))
 
         if customer and bcrypt.checkpw(cpassword.encode(),pw_storedhash):
             session['cmail'] = request.form['cmail']
-            return redirect(url_for('userLanding'))
-        # return render_template('loggedinLanding.html',cusname=customer.cname,restadmin = Restadmin.query.all(),chosen=chosen)
-            
+            file_log.info("Customer: "+ str(customer.cid) + " has successfully logged in")
+
+            return redirect(url_for('userLanding'))  
+        file_log.warning("Customer with IP: "+ ip + " has failed login(Wrong credentials/do not exist)")
     return render_template('login.html',cusname="Login failed...\n Please enter valid username and password!")
 
 
@@ -1207,7 +1273,7 @@ def changepassnext():
     customer  = Customer.query.filter(Customer.cmail == cmail).first()
     pw_storedhash = customer.cpassword
     if customer and bcrypt.checkpw(cpassword.encode(),pw_storedhash):
-            return render_template('changepassnext.html')
+        return render_template('changepassnext.html')
     else:
         customer=Customer.query.filter(Customer.cmail==cmail).first()
         return render_template('changepass.html', info=customer,cmsg="Invalid password entered")
@@ -1223,7 +1289,7 @@ def updatepassword():
 
         cpassword = request.args.get("cpassword")
         cpassword2 = request.args.get("cpassword2")
-    
+    ip = request.remote_addr
     if cpassword == cpassword2:
         cmail=session['cmail']
         customer = Customer.query.filter(Customer.cmail==cmail).first()
@@ -1231,8 +1297,12 @@ def updatepassword():
         pwhash = bcrypt.hashpw(cpassword.encode(),salt)
         customer.cpassword=pwhash
         db.session.commit()
+        file_log.info("Customer ID: " + str(customer.cid) + " has successfully updated password")
+
         return render_template('changepassnext.html',cmsg1="Sucessfully updated password")
     else:
+        file_log.warning("Customer ID: " + str(customer.cid) + " has failed to update password")
+
         return render_template('changepassnext.html',cmsg2="Passwords do not match")
 
 @app.route('/forgorpassword',methods=["POST","GET"])
@@ -1248,6 +1318,8 @@ def forgorpassword():
         
     new_pass = random.randint(100,999)
     customer=Customer.query.filter(Customer.cmail==cmail).first()
+    file_log.info("Random 3-digit pin generated for user")
+
     return render_template('forgorpassword.html',temppass=new_pass)
 
 
@@ -1265,16 +1337,22 @@ def forgorpasswordNext():
     cemail = request.form["cmail"]
 
     customer=Customer.query.filter(Customer.cmail==cemail).first()
-    cmail = customer.cmail
-    # send pin to email
-   
-    # customer.cpassword = temppass
-    msg = Message("Hello from Chow Down! Here is your pin to reset your password.", sender="chowdownadmin054@gmail.com", recipients=[cmail])
-    msg.body = "Your PIN: " + str(temppass)
-    mail.send(msg)
-    db.session.commit()
-    session['cmail'] = cmail
-    return render_template('forgorpasswordNext.html', cusinfo = customer,temppass=temppass)
+    if customer:
+        cmail = customer.cmail
+        # send pin to email
+        
+        # customer.cpassword = temppass
+        msg = Message("Hello from Chow Down! Here is your pin to reset your password.", sender="chowdownadmin054@gmail.com", recipients=[cmail])
+        msg.body = "Your PIN: " + str(temppass)
+        mail.send(msg)
+        db.session.commit()
+        session['cmail'] = cmail
+        file_log.warning("Randomly generated 3 digit PIN has been sent to Customer email. Customer ID: " + str(customer.cid))
+
+        return render_template('forgorpasswordNext.html', cusinfo = customer,temppass=temppass)
+    else:
+        ip = request.remote_addr
+        file_log.warning("Fail to recognise email associated with a existing customer account. Customer IP: " + ip)
 
 @app.route('/verify', methods=['POST','GET'])
 def verifiy():
@@ -1285,10 +1363,15 @@ def verifiy():
     elif request.method == "POST":
         temppass = request.form['temp']
         pin = request.form['pin']
-
+    cmail = session['cmail']
+    customer = Customer.query.filter(Customer.cmail==cmail).first()
     if temppass == pin:
+        file_log.warning("Customer: " + str(customer.cid) + " has succesfully passed verification. Redirecting to change password now")
+
         return render_template("changepassnext.html")
     else:
+        file_log.warning("Customer: " + str(customer.cid) + " has entered incorrect pin for verification.")
+
         return render_template("forgorpasswordNext.html",cmsg="Pin is incorrect. Please try again")
     
 @app.route('/edituserprofileNext', methods = ['GET','POST'])
@@ -1308,29 +1391,9 @@ def edituserprofileNext():
     customer.caddress = address
 
     db.session.commit()
-    flash("Successfully updated profile")
+    file_log.info("Customer ID: "+ str(customer.cid) +" has successfully updated credentials")
+
     return render_template('profile2.html', cmsg="Passsword Updated Succcessfully...!", cusinfo = customer)
-
-
-
-
-# @app.route("/payment", methods=["GET","POST"])
-# def finalpayment():
-#     if request.method == "GET":
-#         tprice = request.args.get("tprice")
-#         items = request.args.get("items")
-#         rid=request.args.get("restid")
-        
-    
-#     elif request.method == "POST":
-#         tprice=request.form['tprice']
-#         items=request.form["items"]
-#         rid=request.form['restid']
-
-        
-#     return render_template('payment.html', rid=rid,tprice=tprice,items=items)
-
-
 
 
 @app.route("/givereview", methods=["POST","GET"])
@@ -1348,7 +1411,7 @@ def givereview():
         rid=request.form['restid']
         paymentType =  request.form["pay"]
    
-        
+#  deal with givereview 
     cmail=session['cmail']
     customer  = Customer.query.filter(Customer.cmail == cmail).first()
     restadmin  = Restadmin.query.filter(Restadmin.rid == rid).first()
@@ -1359,14 +1422,14 @@ def givereview():
     month = currentDate.month
     currentDate = datetime.datetime.now()
     year = currentDate.year
-    orders = Orders(cid=customer.cid, rid=rid, items=items,tprice=tprice,payment=paymentType,month1=month,rname=rname)
+    # orders = Orders(cid=customer.cid, rid=rid, items=items,tprice=tprice,payment=paymentType,month1=month,rname=rname)
     # data = Data(rid=rid, month=month, year=year)
     cid = customer.cid
     
     
-    if orders :
-        db.session.add(orders)
-        db.session.commit()
+    # if orders :
+    #     db.session.add(orders)
+    #     db.session.commit()
         # db.session.add(data)
         # db.session.commit()
     # restadmin  = Restadmin.query.filter(Restadmin.rid == rid).first()
@@ -1451,10 +1514,19 @@ def buyHistory():
 
 @app.route('/logout')
 def logout():
+    cmail = session['cmail']
+    customer = Customer.query.filter(Customer.cmail==cmail).first()
+
+    file_log.info("Customer: " + str(customer.cid) + "has logged out")
     session.pop('cmail',None)
     return redirect(url_for('landingPage'))
 @app.route('/logoutrest')
 def logoutrest():
+    rmail = session['rmail']
+    rest = Restadmin.query.filter(Restadmin.rmail==rmail).first()
+
+    file_log.info("Restraunt Owner: " + str(rest.rid) + " has logged out")
+
     session.pop('rmail',None)
     return redirect(url_for('landingPage'))
 # if __name__ == "__main__":
