@@ -25,7 +25,7 @@ logging.config.fileConfig(logging_conf_path)
 dashboard.config.init_from(file='../../config.cfg')
 # config file dont work
 dashboard.bind(app)
-YOUR_DOMAIN = 'http://localhost:5000'
+YOUR_DOMAIN = 'https://localhost:5000'
 
 # stripe_keys = {
 #     "secret_key": 'sk_test_51L7ztQFZRxIbs7Knrfzv2kk0AKxdl3Zdu5HAnHGbDE5gZq3cN4FJhlFARnyCXT3F1D1TiXQztF992q7pxz17F4Vk00qV2QyIEb',
@@ -84,8 +84,7 @@ def landingPage():
     ip_addr = request.remote_addr
 # file log only warning>
     app.logger.info("User IP: " + ip_addr + " visited the site")
-    app.logger.warning("fein")
-    file_log.info("TESTING FILELOG")
+
     # FILE_LOG SHLD GO TO LOGS2 (no werkzeug, for important info, errors/signups/transactions)
     # app.logger(root) SHOULD GO LOGS1 (every other log werkzeug, assets etc, general info)
     return render_template('landingPage.html', restadmin=Restadmin.query.all())
@@ -459,21 +458,20 @@ def additemNext():
         file_log.warning("Restraunt Owner ID : "+ str(restad.rid) +" failed to add item; No image provided.")
         return redirect(request.url)
     elif file and allowed_file(file.filename):
-        items = Items(iname=iname, iprice=iprice, rid=restid, idesc=idescription,priceid="temp")
+        items = Items(iname=iname, iprice=iprice, rid=restid, idesc=idescription)
         db.session.add(items)
         db.session.commit()
         iid = items.iid
 
         file.filename = str(iid) + ".png"
  
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
        
         client = imgbbpy.SyncClient('d92793a1e6a23ddf9b758139fce4a106')
-        image = client.upload(file='/Users/gabri/appsec/appdev_final_8JUNE/Chowdown-Appsecurity/app/static/images/product_image/' + filename)
+        image = client.upload(file='/Users/gabri/appsec/appdev_final_8JUNE/Chowdown-Appsecurity/app/static/images/product_image/' + file.filename)
         print(image.url)
         product = stripe.Product.create(
             name=iname,
-            id = iid,
             images = [image.url])
         price = stripe.Price.create(
             product=product.id,
@@ -481,6 +479,7 @@ def additemNext():
             currency='sgd')
         items = Items.query.filter(Items.iid==iid).first()
         items.priceid = price.id
+        items.stripe_productID = product.id
         db.session.commit()
         file_log.warning("Restraunt Owner ID : "+ str(restad.rid) +",Successfully added item " + str(items.iid) + " to database.")
 
@@ -546,13 +545,13 @@ def updateitemNext():
         file_log.info("Item ID : "+ str(item.iid) +" has been updated and saved into database.")
 
 
-        stripe.Product.modify(str(item.iid), name=iname)
+        stripe.Product.modify(str(item.stripe_productID), name=iname)
 
         stripe.Price.modify(
             item.priceid,active=False
         )
         price = stripe.Price.create(
-            product = item.iid,
+            product = item.stripe_productID,
             unit_amount = round((float(iprice)*100)),
             currency='sgd'
         )

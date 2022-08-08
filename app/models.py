@@ -31,8 +31,8 @@ class Items(db.Model):
     iprice = db.Column(db.Integer, nullable=False)
     rid = db.Column(db.Integer, db.ForeignKey('restadmin.rid'), nullable=False)
     idesc = db.Column(db.String(250))
-    priceid = db.Column(db.String(250),nullable=False)
-
+    priceid = db.Column(db.String(250),nullable=True)
+    stripe_productID = db.Column(db.String(250))
 
 
 class Orders(db.Model):
