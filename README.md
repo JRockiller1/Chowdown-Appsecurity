@@ -4,4 +4,5 @@
 pip install -r requirements.txt
 
 
-WEBSITE deployed on Ubuntu NGINX: chowdown1.store
+
+[WEBSITE deployed on Ubuntu vps running on NGINX](chowdown1.store)
