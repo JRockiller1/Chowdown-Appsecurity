@@ -127,9 +127,11 @@
                         </script>
                         
                 
-                            <td scope="row"> {{i.items}} </td>
+                            <td scope="row"> {{i.items}}  <form action="/givereview" method="POST">
+                                <input type="hidden" name="rname" id="" value="{{i.rname}}"><button type="submit">Give review</button></form></td>
                             <td><span id="paym" class="fa fa-credit-card"></span></td>
                             <td class="text-muted">{{i.rname}}</td>
+
                             <td class="d-flex justify-content-end align-items-center" id="totalprice1">{{i.tprice}}</td>
                     
                             <!-- <td scope="row"> {{i.items}} </td>

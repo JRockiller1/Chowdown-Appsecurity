@@ -166,23 +166,22 @@ def restloginNext():
 
        
         restadmin  = Restadmin.query.filter(Restadmin.rmail == rmail).first()
-        pw_storedhash = restadmin.rpassword
 
         ip = request.remote_addr
 
-        # if restadmin and rpassword.isnumeric():
-        #     session['rmail'] = request.form['rmail']
-        #     return redirect(url_for('resthome1'))
-        if restadmin and bcrypt.checkpw(rpassword.encode(),pw_storedhash) :
-            session['rmail'] = request.form['rmail']
-            file_log.info("Restraunt Owner: "+ str(restadmin.rid) + " has successfully logged in")
-            return redirect(url_for('resthome1'))
-            # return render_template('resthome.html',rusname=restadmin.rname,restadmin = Restadmin.query.all())
-            # return render_template('resthome.html',restadmin = Restadmin.query.all())
-            
-        file_log.info("Restraunt Owner IP: "+ ip + " has failed login (Wrong credentials/ do not exist)")
+        if restadmin:
+            pw_storedhash = restadmin.rpassword
 
-        return render_template('login-vendor.html',rusname="Login failed...\n Please enter valid username and password!")
+            if bcrypt.checkpw(rpassword.encode(),pw_storedhash) :
+                session['rmail'] = request.form['rmail']
+                file_log.info("Restraunt Owner: "+ str(restadmin.rid) + " has successfully logged in")
+                return redirect(url_for('resthome1'))
+                # return render_template('resthome.html',rusname=restadmin.rname,restadmin = Restadmin.query.all())
+                # return render_template('resthome.html',restadmin = Restadmin.query.all())
+                
+        else:
+            file_log.info("Restraunt Owner IP: "+ ip + " has failed login (Wrong credentials/ do not exist)")
+            return render_template('login-vendor.html',cmsg1="Login failed. Please enter valid username and password!")
 
 @app.route('/restprofile')
 def restProfile():
@@ -697,9 +696,9 @@ def create_checkout_session():
         line_items=line_items,
         mode='payment',
         allow_promotion_codes= True,
-        success_url= 'https://127.0.0.1:5000/user-landing',
-        cancel_url= 'https://127.0.0.1:5000/user-landing',
-        # configure ltr
+        success_url= 'http://127.0.0.1:5000/buyHistory',
+        cancel_url= 'http://127.0.0.1:5000/user-landing',
+
         )
     currentDate = datetime.datetime.now()
     #change to show how month work for graph
@@ -1020,9 +1019,6 @@ def success():
         if customercheck:
             return render_template('signup.html',cmsg="Registration Falied, \n User Already Registered..!")
         else:
-            # password hash (BAD)
-            # pwhash = sha256(cpassword.encode('utf8'))
-            # customer = Customer(cname=cname,cmail=cmail,cmobile=cmobile, caddress=caddress, cpassword=pwhash.hexdigest())
             # ==========================================================================================
             # password hash with salting and pbdfk2 (good) OR BCRYPT
             # pbkdf2 better for encryption (key derivation. Their purpose is to generate an encryption key given a password. )
@@ -1133,15 +1129,16 @@ def loginsuccess():
         cpassword = request.form['cpassword']
   
         customer  = Customer.query.filter(Customer.cmail == cmail).first()
-        pw_storedhash = customer.cpassword
+        if customer:
+            pw_storedhash = customer.cpassword
+            if bcrypt.checkpw(cpassword.encode(),pw_storedhash):
+                session['cmail'] = request.form['cmail']
+                file_log.info("Customer: "+ str(customer.cid) + " has successfully logged in")
 
-        if customer and bcrypt.checkpw(cpassword.encode(),pw_storedhash):
-            session['cmail'] = request.form['cmail']
-            file_log.info("Customer: "+ str(customer.cid) + " has successfully logged in")
-
-            return redirect(url_for('userLanding'))  
-        file_log.warning("Customer with IP: "+ ip + " has failed login(Wrong credentials/do not exist)")
-    return render_template('login.html',cusname="Login failed...\n Please enter valid username and password!")
+                return redirect(url_for('userLanding'))  
+        else:
+            file_log.warning("Customer with IP: "+ ip + " has failed login(Wrong credentials/do not exist)")
+            return render_template('login.html',cmsg1="Login failed. Please enter valid username and password")
 
 
 @app.route("/user-landing", methods=["POST","GET"])
@@ -1352,7 +1349,7 @@ def forgorpasswordNext():
     else:
         ip = request.remote_addr
         file_log.warning("Fail to recognise email associated with a existing customer account. Customer IP: " + ip)
-
+        return render_template('forgorpassword.html', cmsg1 = "Fail to recognise email associated with an existing customer account. Please try again")
 @app.route('/verify', methods=['POST','GET'])
 def verifiy():
     if request.method == "GET":
@@ -1398,24 +1395,24 @@ def edituserprofileNext():
 @app.route("/givereview", methods=["POST","GET"])
 def givereview():
     if request.method == "GET":
-        tprice = request.args.get("tprice")
-        items = request.args.get("items")
-        rid=request.args.get("restid")
-        paymentType =  request.args.get("pay")
-        
+        # tprice = request.args.get("tprice")
+        # items = request.args.get("items")
+        # rid=request.args.get("restid")
+        # paymentType =  request.args.get("pay")
+        rname = request.args.get('rname')
     
     elif request.method == "POST":
-        tprice=request.form['tprice']
-        items=request.form["items"]
-        rid=request.form['restid']
-        paymentType =  request.form["pay"]
+        # tprice=request.form['tprice']
+        # items=request.form["items"]
+        # rid=request.form['restid']
+        # paymentType =  request.form["pay"]
+        rname = request.form["rname"]
    
 #  deal with givereview 
     cmail=session['cmail']
     customer  = Customer.query.filter(Customer.cmail == cmail).first()
-    restadmin  = Restadmin.query.filter(Restadmin.rid == rid).first()
+    restadmin  = Restadmin.query.filter(Restadmin.rname == rname).first()
     rid=restadmin.rid
-    rname= restadmin.rname
     currentDate = datetime.datetime.now()
     #change to show how month work for graph
     month = currentDate.month

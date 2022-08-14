@@ -38,6 +38,9 @@
 												<input type="password" name="cpassword" class="form-style" placeholder="Your Password" id="logpass" autocomplete="off">
 												<i class="input-icon uil uil-lock-alt"><span class="iconify" data-icon="dashicons:lock-duplicate" style="color: #ffeba7;"></span></i>
 											</div>
+											{%if cmsg1%}
+                                            	<p style="color: red;"><b>{{cmsg1}}</b></p>
+											{%endif%}
 											<button href="#" formmethod="POST" class="btn mt-4">submit</button>
 											<h4 class="mb-0 pb-3"><a href="/forgorpassword">Forgot your password?</a></h4>
 				      					</div>
