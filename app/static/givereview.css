@@ -86,7 +86,7 @@ label.star:before{
   transition: all .25s;
 }
 
-textarea.review{
+input.review{
   background: #222;
   border: none;
   width: 100%;

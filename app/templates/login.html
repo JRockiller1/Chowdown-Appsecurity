@@ -35,8 +35,12 @@
 												<i class="input-icon uil uil-at"><span class="iconify" data-icon="ic:baseline-alternate-email" style="color: #ffeba7;"></span></i>
 											</div>
 											<div class="form-group mt-2">
-												<input type="password" name="cpassword" class="form-style" placeholder="Your Password" id="logpass" autocomplete="off">
+												<input type="password" name="cpassword" class="form-style" placeholder="Your Password" id="logpass" autocomplete="off"
+												onkeypress="return allowOnlyLetters(event,this);" pattern="[^()/><}{\][\\\x22;|]+">
 												<i class="input-icon uil uil-lock-alt"><span class="iconify" data-icon="dashicons:lock-duplicate" style="color: #ffeba7;"></span></i>
+											</div>
+											<div class="form-group">
+												{{ form.recaptcha }}
 											</div>
 											{%if cmsg1%}
                                             	<p style="color: red;"><b>{{cmsg1}}</b></p>
@@ -51,3 +55,29 @@
 
 </body>
 </html>
+<script language="Javascript" type="text/javascript">
+	const allowed = [32,33,39,44,46,63]
+	function allowOnlyLetters(e, t)
+	{
+	   if (window.event)
+	   {
+		  var charCode = window.event.keyCode;
+	   }
+	   else if (e)
+	   {
+		  var charCode = e.which;
+	   }
+	   else { return true; }
+	   if ((charCode > 64 && charCode < 91) || (charCode > 96 && charCode < 123))
+		   return true;
+	   else if ((charCode > 47 && charCode < 58))
+		   return true;
+	   else if ((allowed.includes(charCode) ))
+		   return true;
+	   else
+	   {
+		  alert("Refrain from using special characters");
+		  return false;
+	   }
+	}
+	</script>

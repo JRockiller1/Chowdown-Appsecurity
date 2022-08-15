@@ -6,7 +6,7 @@
 </div>
 <div class="cont">
 <div class="stars">
-  {% autoescape false %}
+  {% autoescape True %}
 <form action="/givereviewnext" method="POST">
   <input class="star star-5" id="star-5-2" type="radio" name="rating" value="5"/>
   <label class="star star-5" for="star-5-2"></label>
@@ -19,7 +19,8 @@
   <input class="star star-1" id="star-1-2" type="radio" name="rating" value="1"/>
   <label class="star star-1" for="star-1-2"></label>
   <div class="rev-box">
-    <textarea class="review" col="500" name="review"></textarea>
+    <input class="review" col="500" name="review" onkeypress="return allowOnlyLetters(event,this);"
+           pattern="[^()/><}{\][\\\x22;|]+">
     <label class="review" for="review">Brief Review</label>
     <div>
       <p>Leave a comment here!</p>
@@ -27,8 +28,35 @@
   <input type="text" hidden="true" value='{{cid}}'  name="cid1">
     <input type="text" hidden="true" value="{{rid}}" name="restid">
             <h3>You are currently leaving a review on <b> {{rname}} </b></h3>
-  <div class="post-button"> <button type="submit">SUBMIT REVIEW</button> </div>
+  <div class="post-button"> <button type="submit" >SUBMIT REVIEW</button> </div>
 </form>
 <div>{{review}}</div>
 </div>
 {% endautoescape %}
+<script language="Javascript" type="text/javascript">
+const allowed = [32,33,39,44,46,63]
+function allowOnlyLetters(e, t)
+{
+   if (window.event)
+   {
+      var charCode = window.event.keyCode;
+   }
+   else if (e)
+   {
+      var charCode = e.which;
+   }
+   else { return true; }
+   if ((charCode > 64 && charCode < 91) || (charCode > 96 && charCode < 123))
+       return true;
+   else if ((charCode > 47 && charCode < 58))
+       return true;
+   else if ((allowed.includes(charCode) ))
+       return true;
+   else
+   {
+      alert("Refrain from using special characters");
+      return false;
+   }
+}
+
+</script>

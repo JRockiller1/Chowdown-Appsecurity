@@ -36,8 +36,11 @@
 												<i class="input-icon uil uil-at"><span class="iconify" data-icon="ic:baseline-alternate-email" style="color: #ffeba7;"></span></i>
 											</div>
 											<div class="form-group mt-2">
-												<input type="password" name="cpassword" class="form-style" placeholder="Your Password" id="logpass" autocomplete="off" required>
+												<input type="password" id="password" onkeyup="trigger()" name="cpassword" class="form-style" placeholder="Your Password" id="logpass" autocomplete="off" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" required>
 												<i class="input-icon uil uil-lock-alt"><span class="iconify" data-icon="dashicons:lock-duplicate" style="color: #ffeba7;"></span></i>
+												<meter max="4" id="password-strength-meter"></meter>
+												<p id="password-strength-text"></p>
+												
 											</div>
 											<div class="form-group">
 												<input type="text" name="cname" class="form-style" placeholder="Your Full Name" id="logname" autocomplete="off" required>
@@ -55,10 +58,42 @@
 												<i class="input-icon uil uil-user"><span class="iconify" data-icon="akar-icons:person" style="color: #ffeba7;"></span></i>
 
 											</div>
+											<div class="form-group">
+												{{ form.recaptcha }}
+											</div>
 											<button href="" class="btn mt-4" >submit</button>
 				      					</div>
 			      					</div>
 									  </div>
+									  <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.2.0/zxcvbn.js"></script>
+
+									 <script>
+										var strength = {
+														0: "Worst",
+														1: "Bad",
+														2: "Weak",
+														3: "Good",
+														4: "Strong"
+														}
+														var password = document.getElementById('password');
+															var meter = document.getElementById('password-strength-meter');
+															var text = document.getElementById('password-strength-text');
+
+															password.addEventListener('input', function() {
+															var val = password.value;
+															var result = zxcvbn(val);
+
+															// Update the password strength meter
+															meter.value = result.score;
+
+															// Update the text indicator
+															if (val !== "") {
+																text.innerHTML = "Strength: " + strength[result.score]; 
+															} else {
+																text.innerHTML = "";
+															}
+															});
+									 </script>
 								</form>
 
 </body>

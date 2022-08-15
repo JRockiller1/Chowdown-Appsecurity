@@ -1,4 +1,4 @@
-import logging, logging.config
+
 from flask_mail import Mail
 from flask import Flask, flash, render_template, render_template_string, url_for, request, session
 from werkzeug.utils import redirect,secure_filename
@@ -14,17 +14,103 @@ import bcrypt
 import stripe
 import imgbbpy
 import flask_monitoringdashboard as dashboard
+from datetime import timedelta
+from app.product import Product
+from app.vendorAccount import Vendor
+from app.forms import CreateUserForm
+from app.forms import recaptcha
+import pyotp
 
+
+@app.route('/lll', methods=['POST'])
+def api_home():
+     return "paths '/api/v1/changeUserSettings'"
+# A route to return all of the available entries in our admin log.
+@app.route('/api/v1/changeUserSettings', methods=['POST'])
+def api_cards():
+    if 'username' in request.args:
+        name = request.args['name']
+    else:
+        return "Error: No username field provided."
+    if 'name' in request.args:
+        name = request.args['name']
+    else:
+        return "Error: No name field provided."
+    if 'firstname' in request.args:
+        name = request.args['name']
+    else:
+        return "Error: No firstname field provided."
+    if 'adress' in request.args:
+        name = request.args['name']
+    else:
+        return "Error: No adress field provided."
+    if 'money' in request.args:
+        money = request.args['money']
+    if 'accountType' in request.args:
+        type = request.args['accountType']
+    else:
+        return "Error: No type field provided. The type can be either user or reader"
+    if money =="20":
+        return "wow gained $20, its like magic!!"
+    if type == 'admin':
+        return "Good job!!  admin account accessed "
+    
+    else:
+        return "account settings saved"
+
+# login page route
+@app.route("/alterlogin/")
+def alterlogin():
+    return render_template("alterlogin.html")
+@app.route("/alterlogin/", methods=["POST"])
+def login_form():
+    # demo creds
+    creds = {"username": "test", "password": "password"}
+     #getting form data
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    # authenticating submitted creds with demo creds
+    # redirecting users to 2FA page when creds are valid
+    if username == creds["username"] and password == creds["password"]:
+        return redirect(url_for("login_2fa"))
+    else:
+        # inform users if creds are invalid
+        flash("You have supplied invalid login credentials!", "danger")
+        return redirect(url_for("alterlogin"))
+# 2FA page route
+@app.route("/login/2fa/")
+def login_2fa():
+    # generating random secret key for authentication
+    secret = pyotp.random_base32()
+    return render_template("login_2fa.html", secret=secret)
+
+
+# 2FA form route
+@app.route("/login/2fa/", methods=["POST"])
+def login_2fa_form():
+    # getting secret key used by user
+    secret = request.form.get("secret")
+    # getting OTP provided by user
+    otp = int(request.form.get("otp"))
+
+    # verifying submitted OTP with PyOTP
+    if pyotp.TOTP(secret).verify(otp):
+        # inform users if OTP is valid
+        flash("The TOTP 2FA token is valid", "success")
+        return redirect(url_for("login_2fa"))
+    else:
+        # inform users if OTP is invalid
+        flash("You have supplied an invalid 2FA token!", "danger")
+        return redirect(url_for("login_2fa"))
 
 # use this for config file for dashbaord monitoring
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=1)
 
-logging_conf_path = os.path.join(os.path.dirname(__file__), 'logging.conf')
-logging.config.fileConfig(logging_conf_path)
 
-# dashboard admin setup monitoring
-dashboard.config.init_from(file='../../config.cfg')
-# config file dont work
-dashboard.bind(app)
 YOUR_DOMAIN = 'https://localhost:5000'
 
 # stripe_keys = {
@@ -36,16 +122,16 @@ stripe.api_key = 'sk_test_51L7ztQFZRxIbs7Knrfzv2kk0AKxdl3Zdu5HAnHGbDE5gZq3cN4FJh
 
 # password for chowdownfeedback054@gmail.com: chowdownadmin123
 # maill pass pzwzrpxhkwyhowjm
-# put in os environ variable
+UPLOAD_FOLDER = '/Users/gabri/appsec/appdev_final_8JUNE/Chowdown-Appsecurity/app/static/images/product_image'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+ 
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+ 
 
-# app.config.update(dict(
-#     MAIL_SERVER = 'smtp.gmail.com',
-#     MAIL_PORT = 465,
-#     MAIL_USE_TLS = False,
-#     MAIL_USE_SSL = True,
-#     MAIL_USERNAME = 'chowdownfeedback054@gmail.com',
-#     MAIL_PASSWORD = 'fmpnqsgxaseqyyui'
-# ))
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -55,35 +141,15 @@ app.config['MAIL_PASSWORD'] = 'fmpnqsgxaseqyyui'
 
 mail = Mail(app)
 
-
-# UPLOAD_FOLDER = 'app/static/images/product_image'
-UPLOAD_FOLDER = '/Users/gabri/appsec/appdev_final_8JUNE/Chowdown-Appsecurity/app/static/images/product_image'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
- 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
- 
-
-file_log = logging.getLogger('filelog')
-file_log.propagate = False
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
 # deelte ltr
-@app.route('/fordash')
-def fashhhd():
-    return "da"
-# @app.before_first_request
-# def before_first_request():
-#     app.logger.setLevel(logging.CRITICAL)
+@app.route('/dependency-checker')
+def dependency():
+    return render_template("checker.html")
 
 @app.route('/index')
 @app.route("/")
 def landingPage():
-    ip_addr = request.remote_addr
-# file log only warning>
-    app.logger.info("User IP: " + ip_addr + " visited the site")
+
 
     # FILE_LOG SHLD GO TO LOGS2 (no werkzeug, for important info, errors/signups/transactions)
     # app.logger(root) SHOULD GO LOGS1 (every other log werkzeug, assets etc, general info)
@@ -113,7 +179,9 @@ def error_404(e):
 # RESTRAUNT/VENDOR
 @app.route('/restSignup', methods = ['GET','POST'])
 def restlogin():
-    return render_template('signup-vendor.html')
+    form=recaptcha()
+
+    return render_template('signup-vendor.html',form=form)
 
 @app.route('/restSignup-next', methods = ['GET','POST'])
 def restregisterbyadmin():	
@@ -134,8 +202,7 @@ def restregisterbyadmin():
         pwhash = bcrypt.hashpw(rpassword.encode(),salt)
 
         if restadmin:
-            file_log.warning("Restraunt Owner: "+ rname + " has failed to register")
-
+        
             # return redirect(url_for('adminHome1'))		
             return render_template('signup-vendor.html', admsg="Restaurant Already Registered...!")
         # add in alert to say restraunt is registered already
@@ -144,13 +211,15 @@ def restregisterbyadmin():
         
             db.session.add(newrest)
             db.session.commit()
-            file_log.info("Restraunt Owner: "+ rname + " has successfully registered")
+       
             return render_template('login-vendor.html')
             # return render_template('vendorProfile.html', ssmsg="Restaurant Registered Succcessfully...!")
 
 @app.route('/restLogin')
 def restLogin():
-    return render_template("login-vendor.html")
+    form=recaptcha()
+
+    return render_template("login-vendor.html",form=form)
 
 @app.route('/restLogin-next',methods=['GET','POST'])
 def restloginNext():
@@ -159,10 +228,12 @@ def restloginNext():
     if request.method == "GET":
         rmail = request.args.get("rmail")
         rpassword = request.args.get("rpassword")
-    
+        form=recaptcha()
+
     elif request.method == "POST":
         rmail = request.form['rmail']
         rpassword = request.form['rpassword']
+        form=recaptcha()
 
        
         restadmin  = Restadmin.query.filter(Restadmin.rmail == rmail).first()
@@ -174,14 +245,14 @@ def restloginNext():
 
             if bcrypt.checkpw(rpassword.encode(),pw_storedhash) :
                 session['rmail'] = request.form['rmail']
-                file_log.info("Restraunt Owner: "+ str(restadmin.rid) + " has successfully logged in")
+               
                 return redirect(url_for('resthome1'))
                 # return render_template('resthome.html',rusname=restadmin.rname,restadmin = Restadmin.query.all())
                 # return render_template('resthome.html',restadmin = Restadmin.query.all())
                 
         else:
-            file_log.info("Restraunt Owner IP: "+ ip + " has failed login (Wrong credentials/ do not exist)")
-            return render_template('login-vendor.html',cmsg1="Login failed. Please enter valid username and password!")
+           
+            return render_template('login-vendor.html',cmsg1="Login failed. Please enter valid username and password!",form=form)
 
 @app.route('/restprofile')
 def restProfile():
@@ -246,11 +317,10 @@ def updatepasswordrest():
         pwhash = bcrypt.hashpw(rpassword.encode(),salt)
         restadmin.rpassword=pwhash
         db.session.commit()
-        file_log.info("Restraunt Owner ID : "+ str(restadmin.rid) +" has successfully updated password")
-
+       
         return render_template('changepassrestnext.html',cmsg1="Sucessfully updated password")
     else:
-        file_log.warning("Restraunt Owner ID : "+ restadmin.rid +" has failed to update password")
+   
 
         return render_template('changepassrestnext.html',cmsg2="Passwords do not match")
 
@@ -273,7 +343,6 @@ def editrestprofileNext():
     restadmin.raddress = raddress
     restadmin.rpassword = rpassword
     db.session.commit()
-    file_log.info("Restraunt Owner ID : "+ str(restadmin.rid) +" has successfully updated credentials")
     return render_template('vendorProfile.html', cmsg="Passsword Updated Succcessfully...!", restinfo = restadmin)
 
 
@@ -454,7 +523,6 @@ def additemNext():
  
     if file.filename == '':
         flash('No image selected for uploading')
-        file_log.warning("Restraunt Owner ID : "+ str(restad.rid) +" failed to add item; No image provided.")
         return redirect(request.url)
     elif file and allowed_file(file.filename):
         items = Items(iname=iname, iprice=iprice, rid=restid, idesc=idescription)
@@ -480,7 +548,6 @@ def additemNext():
         items.priceid = price.id
         items.stripe_productID = product.id
         db.session.commit()
-        file_log.warning("Restraunt Owner ID : "+ str(restad.rid) +",Successfully added item " + str(items.iid) + " to database.")
 
     return redirect(url_for('resthome1'))
     # except:
@@ -541,7 +608,6 @@ def updateitemNext():
                 file.filename = str(iid) +".png"
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
         db.session.commit()
-        file_log.info("Item ID : "+ str(item.iid) +" has been updated and saved into database.")
 
 
         stripe.Product.modify(str(item.stripe_productID), name=iname)
@@ -560,7 +626,6 @@ def updateitemNext():
         # add new price to db
         item.priceid = price.id 
         db.session.commit()
-        file_log.info("Item ID : "+ str(item.iid) +" has been updated with new stripe price ID.")
 
         return redirect(url_for('resthome1'))
     else :
@@ -602,7 +667,6 @@ def deleteitemNext():
         # havent check if this works
         db.session.delete(item)
         db.session.commit()
-        file_log.warning("Item ID : "+ str(item.iid) +" has been deleted from database and stripe.")
 
         return redirect(url_for('resthome1'))
     else:
@@ -639,7 +703,6 @@ def createpromonext():
     promotion = Promotion(rid=restid, promocode=promocode, discount=discount)
     db.session.add(promotion)
     db.session.commit()
-    file_log.info("Promocode " + str(promotion.key3) +" has been added to stripe and database")
 
     return redirect(url_for('resthome1'))
 
@@ -710,7 +773,6 @@ def create_checkout_session():
     if orders :
         db.session.add(orders)
         db.session.commit()
-    file_log.info("User: " + str(customer.cid) + "has been redirected to stripe checkout for order " + str(orders.ohash))
 
     return redirect(checkout_session.url,code=303)
 
@@ -934,7 +996,6 @@ def forgorpasswordrest():
 
         
     new_pass = random.randint(100,999)
-    file_log.info("Random 3-digit pin generated for restraunt owner")
 
     return render_template('forgorpasswordrest.html',temppass=new_pass)
 
@@ -959,12 +1020,10 @@ def forgorpasswordNextrest():
         mail.send(msg)
         db.session.commit()
         session['rmail'] = rmail
-        file_log.warning("Randomly generated 3 digit PIN has been sent to Restraunt Owner's email. Restraunt ID: " + rmail)
 
         return render_template('forgorpasswordNextrest.html',temppass=temppass,restinfo = restadmin)
     else:
         ip = request.remote_addr
-        file_log.warning("Fail to recognise email associated with Restraunt Owner account.User IP: " + ip)
         # put cmsg to say no such email for account found
         return render_template('forgorpasswordrest.html')
 
@@ -982,11 +1041,9 @@ def verifyrest():
     rest = Restadmin.query.filter(Restadmin.rmail==rmail).first()
 
     if temppass == pin:
-        file_log.warning("Restraunt Owner " + str(rest.rid) + " has succesfully passed verification. Redirecting to change password now")
 
         return render_template("changepassrestnext.html")
     else:
-        file_log.warning("Restraunt Owner " + rest.rid + " has entered incorrect pin for verification.")
 
         return render_template("forgorpasswordNextrest.html",cmsg="Pin is incorrect. Please try again")
 # =====================================================================================================================
@@ -994,7 +1051,9 @@ def verifyrest():
 # =====================================================================================================================
 @app.route("/sign-in", methods=["POST","GET"])
 def signin():
-    return render_template('signup.html')
+    form=CreateUserForm()
+
+    return render_template('signup.html',form=form)
 
 @app.route('/sign-up-successful',methods=['GET','POST'])
 def success():
@@ -1004,7 +1063,8 @@ def success():
         cname = request.args.get("cname")
         caddress = request.args.get("caddress")
         cmobile= request.args.get("cmobile")
-    
+        form=recaptcha()
+
 
     elif request.method == "POST":
         cmail = request.form["cmail"]
@@ -1017,12 +1077,15 @@ def success():
         
         # return(str(customer))
         if customercheck:
-            return render_template('signup.html',cmsg="Registration Falied, \n User Already Registered..!")
+            form=recaptcha()
+
+            return render_template('signup.html',cmsg="Registration Falied, \n User Already Registered..!",form=form)
         else:
             # ==========================================================================================
             # password hash with salting and pbdfk2 (good) OR BCRYPT
             # pbkdf2 better for encryption (key derivation. Their purpose is to generate an encryption key given a password. )
             # BCYRPT for password storage, much longer/harder to bruteforce (slow hashing).
+            form=recaptcha()
 
             salt = bcrypt.gensalt(rounds=14)
             pwhash = bcrypt.hashpw(cpassword.encode(),salt)
@@ -1031,9 +1094,8 @@ def success():
             customer = Customer(cname=cname,cmail=cmail,cmobile=cmobile, caddress=caddress, cpassword=pwhash)
             db.session.add(customer)
             db.session.commit()
-            file_log.info("Customer: "+ str(customer.cid) + " has successfully registered")
 
-            return render_template('login.html')
+            return render_template('login.html',form=form)
 
 
 @app.route('/feedback',methods=['GET','POST'])
@@ -1054,7 +1116,6 @@ def feedback():
     msg2.body = "From: " + fmail + "\n" + "Subject: " + subject + "\n" + "Message: " + message
     mail.send(msg)
     mail.send(msg2)
-    file_log.info("Feedback email sent by user with IP: " + ip)
 
     return render_template("landingPage.html")
 
@@ -1069,7 +1130,6 @@ def newsletter():
     msg = Message("Hello from Chow Down!", sender="chowdownadmin054@gmail.com",recipients=[nmail])
     msg.body = "Greetings! You are now subscribed to our newsletter!"
     mail.send(msg)
-    file_log.info("User with IP: " + ip + "has signed up for newsletter")
 
     return url_for("landingPage")
 
@@ -1090,7 +1150,6 @@ def feedbacklogged():
     mail.send(msg)
     cmail = session['cmail']
     customer = Customer.query.filter(Customer.cmail == cmail).first()
-    file_log.info("User ID: " + str(customer.cid) + "has sent a feedback")
 
     return render_template("loggedinlanding.html")
 
@@ -1106,14 +1165,14 @@ def newsletterlogged():
     mail.send(msg)
     cmail = session['cmail']
     customer = Customer.query.filter(Customer.cmail == cmail).first()
-    file_log.info("User ID: " + str(customer.cid) + "has signed up for newsletter")
 
     return render_template("loggedinlanding.html")
 
 
 @app.route('/login', methods=["POST","GET"])
 def login():
-    return render_template('login.html')
+    form=recaptcha()
+    return render_template('login.html',form=form)
 
 @app.route('/login-success', methods=['GET','POST'])
 def loginsuccess():
@@ -1123,22 +1182,24 @@ def loginsuccess():
     if request.method == "GET":
         cmail = request.args.get("cmail")
         cpassword = request.args.get("cpassword")
+        form=recaptcha()
+
     
     elif request.method == "POST":
         cmail = request.form['cmail']
         cpassword = request.form['cpassword']
+        form=recaptcha()
   
         customer  = Customer.query.filter(Customer.cmail == cmail).first()
         if customer:
+            form=recaptcha()
             pw_storedhash = customer.cpassword
             if bcrypt.checkpw(cpassword.encode(),pw_storedhash):
                 session['cmail'] = request.form['cmail']
-                file_log.info("Customer: "+ str(customer.cid) + " has successfully logged in")
 
                 return redirect(url_for('userLanding'))  
         else:
-            file_log.warning("Customer with IP: "+ ip + " has failed login(Wrong credentials/do not exist)")
-            return render_template('login.html',cmsg1="Login failed. Please enter valid username and password")
+            return render_template('login.html',cmsg1="Login failed. Please enter valid username and password",form=form)
 
 
 @app.route("/user-landing", methods=["POST","GET"])
@@ -1293,11 +1354,9 @@ def updatepassword():
         pwhash = bcrypt.hashpw(cpassword.encode(),salt)
         customer.cpassword=pwhash
         db.session.commit()
-        file_log.info("Customer ID: " + str(customer.cid) + " has successfully updated password")
 
         return render_template('changepassnext.html',cmsg1="Sucessfully updated password")
     else:
-        file_log.warning("Customer ID: " + str(customer.cid) + " has failed to update password")
 
         return render_template('changepassnext.html',cmsg2="Passwords do not match")
 
@@ -1314,7 +1373,6 @@ def forgorpassword():
         
     new_pass = random.randint(100,999)
     customer=Customer.query.filter(Customer.cmail==cmail).first()
-    file_log.info("Random 3-digit pin generated for user")
 
     return render_template('forgorpassword.html',temppass=new_pass)
 
@@ -1343,12 +1401,10 @@ def forgorpasswordNext():
         mail.send(msg)
         db.session.commit()
         session['cmail'] = cmail
-        file_log.warning("Randomly generated 3 digit PIN has been sent to Customer email. Customer ID: " + str(customer.cid))
 
         return render_template('forgorpasswordNext.html', cusinfo = customer,temppass=temppass)
     else:
         ip = request.remote_addr
-        file_log.warning("Fail to recognise email associated with a existing customer account. Customer IP: " + ip)
         return render_template('forgorpassword.html', cmsg1 = "Fail to recognise email associated with an existing customer account. Please try again")
 @app.route('/verify', methods=['POST','GET'])
 def verifiy():
@@ -1362,11 +1418,9 @@ def verifiy():
     cmail = session['cmail']
     customer = Customer.query.filter(Customer.cmail==cmail).first()
     if temppass == pin:
-        file_log.warning("Customer: " + str(customer.cid) + " has succesfully passed verification. Redirecting to change password now")
 
         return render_template("changepassnext.html")
     else:
-        file_log.warning("Customer: " + str(customer.cid) + " has entered incorrect pin for verification.")
 
         return render_template("forgorpasswordNext.html",cmsg="Pin is incorrect. Please try again")
     
@@ -1387,7 +1441,6 @@ def edituserprofileNext():
     customer.caddress = address
 
     db.session.commit()
-    file_log.info("Customer ID: "+ str(customer.cid) +" has successfully updated credentials")
 
     return render_template('profile2.html', cmsg="Passsword Updated Succcessfully...!", cusinfo = customer)
 
@@ -1513,7 +1566,6 @@ def logout():
     cmail = session['cmail']
     customer = Customer.query.filter(Customer.cmail==cmail).first()
 
-    file_log.info("Customer: " + str(customer.cid) + "has logged out")
     session.pop('cmail',None)
     return redirect(url_for('landingPage'))
 @app.route('/logoutrest')
@@ -1521,7 +1573,6 @@ def logoutrest():
     rmail = session['rmail']
     rest = Restadmin.query.filter(Restadmin.rmail==rmail).first()
 
-    file_log.info("Restraunt Owner: " + str(rest.rid) + " has logged out")
 
     session.pop('rmail',None)
     return redirect(url_for('landingPage'))
