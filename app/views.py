@@ -41,14 +41,11 @@ def api_cards():
         name = request.args['name']
     else:
         return "Error: No adress field provided."
-    if 'money' in request.args:
-        money = request.args['money']
     if 'accountType' in request.args:
         type = request.args['accountType']
     else:
         return "Error: No type field provided. The type can be either user or reader"
-    if money =="20":
-        return "wow gained $20, its like magic!!"
+    
     if type == 'admin':
         return "Good job!!  admin account accessed "
 
