@@ -6,17 +6,14 @@ from sqlalchemy import and_
 from app import app, db
 from app.models import Customer, Restadmin, Items, Orders, Rating,Promotion,charity_vote
 import datetime
-import random
+import secrets
 from flask_mail import Mail,Message
 import os
 from os import path
 import bcrypt
 import stripe
 import imgbbpy
-import flask_monitoringdashboard as dashboard
 from datetime import timedelta
-from app.product import Product
-from app.vendorAccount import Vendor
 from app.forms import CreateUserForm
 from app.forms import recaptcha
 import pyotp
@@ -54,7 +51,7 @@ def api_cards():
         return "wow gained $20, its like magic!!"
     if type == 'admin':
         return "Good job!!  admin account accessed "
-    
+
     else:
         return "account settings saved"
 
@@ -141,7 +138,7 @@ app.config['MAIL_PASSWORD'] = 'fmpnqsgxaseqyyui'
 
 mail = Mail(app)
 
-# deelte ltr
+
 @app.route('/dependency-checker')
 def dependency():
     return render_template("checker.html")
@@ -184,8 +181,8 @@ def restlogin():
     return render_template('signup-vendor.html',form=form)
 
 @app.route('/restSignup-next', methods = ['GET','POST'])
-def restregisterbyadmin():	
-    
+def restregisterbyadmin():
+
     if request.method == "GET":
         rmail = request.args.get("rmail")
         rmobile = request.args.get("rmobile")
@@ -202,7 +199,7 @@ def restregisterbyadmin():
         pwhash = bcrypt.hashpw(rpassword.encode(),salt)
 
         if restadmin:
-        
+
             # return redirect(url_for('adminHome1'))		
             return render_template('signup-vendor.html', admsg="Restaurant Already Registered...!")
         # add in alert to say restraunt is registered already
@@ -247,6 +244,8 @@ def restloginNext():
                 session['rmail'] = request.form['rmail']
                
                 return redirect(url_for('resthome1'))
+            else:
+                return render_template('login-vendor.html',cmsg1="Login failed. Please enter valid username and password",form=form)
                 # return render_template('resthome.html',rusname=restadmin.rname,restadmin = Restadmin.query.all())
                 # return render_template('resthome.html',restadmin = Restadmin.query.all())
                 
@@ -759,8 +758,8 @@ def create_checkout_session():
         line_items=line_items,
         mode='payment',
         allow_promotion_codes= True,
-        success_url= 'http://127.0.0.1:5000/buyHistory',
-        cancel_url= 'http://127.0.0.1:5000/user-landing',
+        success_url= 'http://www.chowdown1.store/buyHistory',
+        cancel_url= 'http://www.chowdown1.store/user-landing',
 
         )
     currentDate = datetime.datetime.now()
@@ -994,8 +993,8 @@ def forgorpasswordrest():
         rmail = request.form['rmail']
 
 
-        
-    new_pass = random.randint(100,999)
+    random = secrets.SystemRandom()
+    new_pass = random.randrange(10000,99999)
 
     return render_template('forgorpasswordrest.html',temppass=new_pass)
 
@@ -1184,12 +1183,12 @@ def loginsuccess():
         cpassword = request.args.get("cpassword")
         form=recaptcha()
 
-    
+
     elif request.method == "POST":
         cmail = request.form['cmail']
         cpassword = request.form['cpassword']
         form=recaptcha()
-  
+
         customer  = Customer.query.filter(Customer.cmail == cmail).first()
         if customer:
             form=recaptcha()
@@ -1197,7 +1196,9 @@ def loginsuccess():
             if bcrypt.checkpw(cpassword.encode(),pw_storedhash):
                 session['cmail'] = request.form['cmail']
 
-                return redirect(url_for('userLanding'))  
+                return redirect(url_for('userLanding'))
+            else:
+                return render_template('login.html',cmsg1="Login failed. Please enter valid username and password",form=form)	
         else:
             return render_template('login.html',cmsg1="Login failed. Please enter valid username and password",form=form)
 
@@ -1370,9 +1371,8 @@ def forgorpassword():
         cmail = request.form['cmail']
 
 
-        
-    new_pass = random.randint(100,999)
-    customer=Customer.query.filter(Customer.cmail==cmail).first()
+    random = secrets.SystemRandom() 
+    new_pass = random.randrange(10000,99999)
 
     return render_template('forgorpassword.html',temppass=new_pass)
 

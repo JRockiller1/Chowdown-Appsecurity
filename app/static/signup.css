@@ -31,6 +31,53 @@ a {
 a {
   color: #ffeba7;
 }
+#g-recaptcha-response {
+    display: block !important;
+    position: absolute;
+    margin: -78px 0 0 0 !important;
+    width: 302px !important;
+    height: 76px !important;
+    z-index: -999999;
+    opacity: 0;
+}
+#message {
+  display:none;
+  background: #c4c3ca;
+  color: #000;
+  position: relative;
+  padding: 10px;
+  margin-top: 10px;
+
+}
+
+#message p {
+  padding: 1px 25px;
+  font-size: 11px;
+  margin: auto;
+
+}
+/*
+ Add a green text color and a checkmark when the requirements are right */
+.valid {
+  color: green;
+}
+
+.valid:before {
+  position: relative;
+  left: -35px;
+  content:"\2713";
+}
+
+/* Add a red text color and an "x" icon when the requirements are wrong */
+.invalid {
+  color: red;
+}
+
+.invalid:before {
+  position: relative;
+  left: -35px;
+  content: "\2715";
+}
 /* .button {
 	cursor: pointer;
   transition: all 200ms linear;

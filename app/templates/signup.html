@@ -22,7 +22,10 @@
 					<div class="section pb-5 pt-5 pt-sm-2 text-center">
 						
 						<h4 class="mb-0 pb-3"><a href="/login">Log In</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/sign-in">Sign Up</a></h4>
-
+<br>
+<br>
+<br>
+<br>
 						<div class="card-3d-wrap mx-auto">
 								<div class="card-front">
 									<div class="center-wrap">
@@ -40,8 +43,17 @@
 												<i class="input-icon uil uil-lock-alt"><span class="iconify" data-icon="dashicons:lock-duplicate" style="color: #ffeba7;"></span></i>
 												<meter max="4" id="password-strength-meter"></meter>
 												<p id="password-strength-text"></p>
-												
+												<div id="message">
+													<h3>Password must contain:</h3>
+													<p id="letter" class="invalid">A <b>lowercase</b> letter</p>
+													<p id="capital" class="invalid">A <b>capital (uppercase)</b> letter</p>
+													<p id="number" class="invalid">A <b>number</b></p>
+													<p id="length" class="invalid">Minimum <b>8 characters</b></p>
+												  </div>
 											</div>
+											
+											
+											 <div class="text"></div>
 											<div class="form-group">
 												<input type="text" name="cname" class="form-style" placeholder="Your Full Name" id="logname" autocomplete="off" required>
 												<i class="input-icon uil uil-user"><span class="iconify" data-icon="akar-icons:person" style="color: #ffeba7;"></span></i>
@@ -54,15 +66,18 @@
 
 											</div>
 											<div class="form-group">
-												<input type="text" name="caddress" class="form-style" placeholder="Your Addresse" id="caddress" autocomplete="off" required>
+												<input type="text" name="caddress" class="form-style" placeholder="Your Address" id="caddress" autocomplete="off" required>
 												<i class="input-icon uil uil-user"><span class="iconify" data-icon="akar-icons:person" style="color: #ffeba7;"></span></i>
 
 											</div>
 											<div class="form-group">
 												{{ form.recaptcha }}
+												
 											</div>
+											
 											<button href="" class="btn mt-4" >submit</button>
 				      					</div>
+										  
 			      					</div>
 									  </div>
 									  <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.2.0/zxcvbn.js"></script>
@@ -94,6 +109,72 @@
 															}
 															});
 									 </script>
+									 <script>
+										var myInput = document.getElementById("password");
+										var letter = document.getElementById("letter");
+										var capital = document.getElementById("capital");
+										var number = document.getElementById("number");
+										var length = document.getElementById("length");
+										
+										// When the user clicks on the password field, show the message box
+										myInput.onfocus = function() {
+										  document.getElementById("message").style.display = "block";
+										}
+										
+										// When the user clicks outside of the password field, hide the message box
+										myInput.onblur = function() {
+										  document.getElementById("message").style.display = "none";
+										}
+										
+										// When the user starts to type something inside the password field
+										myInput.onkeyup = function() {
+										  // Validate lowercase letters
+										  var lowerCaseLetters = /[a-z]/g;
+										  if(myInput.value.match(lowerCaseLetters)) {
+											letter.classList.remove("invalid");
+											letter.classList.add("valid");
+										  } else {
+											letter.classList.remove("valid");
+											letter.classList.add("invalid");
+										}
+										
+										  // Validate capital letters
+										  var upperCaseLetters = /[A-Z]/g;
+										  if(myInput.value.match(upperCaseLetters)) {
+											capital.classList.remove("invalid");
+											capital.classList.add("valid");
+										  } else {
+											capital.classList.remove("valid");
+											capital.classList.add("invalid");
+										  }
+										
+										  // Validate numbers
+										  var numbers = /[0-9]/g;
+										  if(myInput.value.match(numbers)) {
+											number.classList.remove("invalid");
+											number.classList.add("valid");
+										  } else {
+											number.classList.remove("valid");
+											number.classList.add("invalid");
+										  }
+										
+										  // Validate length
+										  if(myInput.value.length >= 8) {
+											length.classList.remove("invalid");
+											length.classList.add("valid");
+										  } else {
+											length.classList.remove("valid");
+											length.classList.add("invalid");
+										  }
+										}
+										</script>
+										<script>window.onload = function() {
+											var $recaptcha = document.querySelector('#g-recaptcha-response');
+										
+											if($recaptcha) {
+												$recaptcha.setAttribute("required", "required");
+											}
+										};</script>
 								</form>
 
 </body>
