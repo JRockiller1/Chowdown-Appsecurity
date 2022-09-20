@@ -13,7 +13,7 @@ To install all requirements:\
 
 
 [WEBSITE deployed on Ubuntu vps running on NGINX](https://www.chowdown1.store)\
-www.chowdown1.store
+www.chowdown1.store (Website no longer in service)
 
 Insufficent Logging & Monitoring (Gabriel Lee) uses open source tools to monitor the linux server used for deployment of the website. Open source tools used:\
 https://github.com/netdata/netdata \
